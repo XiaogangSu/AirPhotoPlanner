@@ -6,8 +6,11 @@
 #include "flightparameter.h"
 #include "child_tv.h"
 #include <set>
-
+#include "UAVRoute.h"
 #include "copyrightdialog.h"
+#include "GomoGeometry2D.h"
+using namespace Gomo::Geometry2D;
+using namespace Gomo::FlightRoute;
 
 namespace Ui {
 class MainWindow;
@@ -57,8 +60,15 @@ public:
     //std::set<QString> setInputKmlFile;
     std::list<QString> listInputKmlFile;
 
+	void setKMLFileList(std::list<QString> list);
+
+	std::vector<Point2DArray> getRouteDesignPoint();
 protected:
     Gomo::FlightRoute::FlightParameter m_flight_param;
+
+	std::vector<Point2DArray> ptRouteArrayVec;
+private:
+	void createRouteDesignPoint(const UAVRouteDesign routeDesignWGS84);
 };
 
 #endif // MAINWINDOW_H

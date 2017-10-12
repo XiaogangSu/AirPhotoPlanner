@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = UAVRouter
+TARGET = AirPhotoPlanner
 TEMPLATE = app
 
 RC_ICONS = guangmu_128.ico
@@ -22,6 +22,7 @@ LIBS += D:/My_Work/library/gdal/Release/lib/gdal_i.lib
 
 SOURCES += main.cpp\
         mainwindow.cpp \
+    mainwindowframe.cpp \
     flightroutedesign.cpp \
     polygonareaflightroutedesign.cpp \
     linearflightroutedesign.cpp \
@@ -44,6 +45,7 @@ SOURCES += main.cpp\
     copyrightdialog.cpp
 
 HEADERS  += mainwindow.h \
+    mainwindowframe.h \
     flightroutedesign.h \
     polygonareaflightroutedesign.h \
     linearflightroutedesign.h \
@@ -66,3 +68,5 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     child_tv.ui \
     copyrightdialog.ui
+
+RESOURCES     = tools.qrc
