@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = AirPhotoPlanner
 TEMPLATE = app
 
-RC_ICONS = guangmu_128.ico
+RC_ICONS = logo.ico
 
 INCLUDEPATH = .
 
