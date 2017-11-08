@@ -258,3 +258,8 @@ void FlightRouteDesign::ShareDesign(const FlightRouteDesign & src,bool append)
 
     }
 }
+
+UAVRouteDesign FlightRouteDesign::getRouteDesign()
+{
+	return m_route_design_WGS84;
+}

@@ -30,7 +30,7 @@ public:
     //provide the last flight point of the current region as the airport of next region
     UAVFlightPoint GetLastFlightPoint();
 
-
+	UAVRouteDesign getRouteDesign();
 protected:
     vector<std::string> m_output_files;
 

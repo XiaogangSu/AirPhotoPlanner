@@ -18,7 +18,8 @@
 #include <QXmlStreamReader>
 
 #include "uicontroller.h"
-
+#include <QtWidgets>
+#include <QPainter>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -28,8 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->btn_unittest->hide();
-
-
 
     //load the default Camera parameters
 //    QString focus("55");
@@ -256,10 +255,36 @@ void MainWindow::on_cmdDesignStart_clicked()
     qDebug("route_desinger->PerformRouteDesign()");
     route_desinger->PerformRouteDesign();
     route_desinger->OutputRouteFile();
+	UAVRouteDesign route_WGS84 = route_desinger->getRouteDesign();
+	createRouteDesignPoint(route_WGS84);
 
     delete route_desinger;
     route_desinger=NULL;
+	this->close();
+}
 
+void MainWindow::createRouteDesignPoint(const UAVRouteDesign routeDesignWGS84)
+{
+	std::vector< UAVFlightPoint >::const_iterator iter = routeDesignWGS84.__flight_point.begin();
+	
+	Point2DArray ptArray;
+	for (; iter != routeDesignWGS84.__flight_point.end(); iter++)
+	{
+		ptArray.push_back(iter->ToGomoPoint2D());
+	}
+
+	ptRouteArrayVec.push_back(ptArray);
+}
+
+std::vector<Point2DArray> MainWindow::getRouteDesignPoint()
+{
+	return ptRouteArrayVec;
+}
+
+void MainWindow::getAitportPositon(double &lon, double &lat)
+{
+	lon = ui->editAirportLongitude->text().toDouble();
+	lat = ui->editAirportLatitude->text().toDouble();
 }
 
 void MainWindow::on_toolButtonOutputSelect_clicked()
@@ -320,10 +345,6 @@ void MainWindow::on_btn_unittest_clicked()
 
     delete route_desinger;
     route_desinger=NULL;
-
-
-
-
 }
 
 void MainWindow::on_MainWindow_iconSizeChanged(const QSize &iconSize)
@@ -398,4 +419,9 @@ bool MainWindow::fillInFlightParamRegionFiles()
     }
 
     return true;
+}
+
+void MainWindow::setKMLFileList(std::list<QString> list)
+{
+	listInputKmlFile = list;
 }

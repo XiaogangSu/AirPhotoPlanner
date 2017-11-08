@@ -8,10 +8,10 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = UAVRouter
+TARGET = AirPhotoPlanner
 TEMPLATE = app
 
-RC_ICONS = guangmu_128.ico
+RC_ICONS = logo.ico
 
 INCLUDEPATH = .
 
@@ -22,6 +22,7 @@ LIBS += D:/My_Work/library/gdal/Release/lib/gdal_i.lib
 
 SOURCES += main.cpp\
         mainwindow.cpp \
+    mainwindowframe.cpp \
     flightroutedesign.cpp \
     polygonareaflightroutedesign.cpp \
     linearflightroutedesign.cpp \
@@ -41,9 +42,12 @@ SOURCES += main.cpp\
     ./niGeom/source/niPolygon2d.cpp \
     ./niGeom/source/niPolygon2dFn.cpp \
     ./niGeom/source/niGeomMath2d.cpp \
-    copyrightdialog.cpp
+    copyrightdialog.cpp \
+    DTM/cateye_mercator.cpp \
+    DTM/cateye_srtm.cpp
 
 HEADERS  += mainwindow.h \
+    mainwindowframe.h \
     flightroutedesign.h \
     polygonareaflightroutedesign.h \
     linearflightroutedesign.h \
@@ -61,8 +65,13 @@ HEADERS  += mainwindow.h \
     flightparameterinput.h \
     child_tv.h \
     uicontroller.h \
-    copyrightdialog.h
+    copyrightdialog.h \
+    DTM/cateye_basic.h \
+    DTM/cateye_mercator.h \
+    DTM/cateye_srtm.h
 
 FORMS    += mainwindow.ui \
     child_tv.ui \
     copyrightdialog.ui
+
+RESOURCES     = tools.qrc
