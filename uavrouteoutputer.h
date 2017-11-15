@@ -23,6 +23,8 @@ public:
     static void OutputRouteDesignFileAsTextEncrypted(const UAVRouteDesign & route_design
                                             ,const std::string & output_file);
 
+	static void OutputRouteDesignFileAsSHP(const UAVRouteDesign & route_design
+		, const std::string & output_file);
 };
 
 #endif // UAVROUTEOUTPUTER_H

@@ -42,7 +42,14 @@ SOURCES += main.cpp\
     ./niGeom/source/niPolygon2d.cpp \
     ./niGeom/source/niPolygon2dFn.cpp \
     ./niGeom/source/niGeomMath2d.cpp \
-    copyrightdialog.cpp
+    copyrightdialog.cpp \
+    DTM/cateye_mercator.cpp \
+    DTM/cateye_srtm.cpp \
+    SHP/shpwriter.cpp \
+    SHP/dbfopen.c \
+    SHP/safileio.c \
+    SHP/shpopen.c \
+    SHP/shptree.c
 
 HEADERS  += mainwindow.h \
     mainwindowframe.h \
@@ -63,7 +70,13 @@ HEADERS  += mainwindow.h \
     flightparameterinput.h \
     child_tv.h \
     uicontroller.h \
-    copyrightdialog.h
+    copyrightdialog.h \
+    DTM/cateye_basic.h \
+    DTM/cateye_mercator.h \
+    DTM/cateye_srtm.h \
+    SHP/shapefil.h \
+    SHP/shapefileHelper.h \
+    SHP/shpwriter.h
 
 FORMS    += mainwindow.ui \
     child_tv.ui \

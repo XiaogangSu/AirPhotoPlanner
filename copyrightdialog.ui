@@ -39,7 +39,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Copyright @ 托勒密科技有限公司</string>
+    <string>版权所有： 北京鹰舞科技有限公司</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -73,12 +73,12 @@
     <rect>
      <x>10</x>
      <y>160</y>
-     <width>151</width>
+     <width>191</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>邮箱：***@163.com</string>
+    <string>邮箱   ：  249097639@qq.com </string>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">
@@ -91,7 +91,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>地址：西安***</string>
+    <string>地址   ：  北京</string>
    </property>
   </widget>
   <widget class="QWidget" name="mywidget" native="true">

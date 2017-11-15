@@ -1,10 +1,8 @@
 #include "uavrouteoutputer.h"
 
 #include <fstream>
+#include "SHP\shpwriter.h"
 using std::ofstream;
-
-
-
 
 UAVRouteOutputer::UAVRouteOutputer()
 {
@@ -194,4 +192,43 @@ UAVRouteOutputer::UAVRouteOutputer()
 
     }
 
+	void UAVRouteOutputer::OutputRouteDesignFileAsSHP(const UAVRouteDesign & route_design
+		, const std::string & output_file)
+	{
+		try
+		{
+			Shpwriter out_shp;
+			out_shp.init(output_file);
+
+			std::vector<SHP_Point> pt_vec;
+
+			int index = 0;
+			SHP_Point pt;
+			pt.X = route_design.__header.airport_longitude;
+			pt.Y = route_design.__header.airport_latitude;
+			pt.Z = route_design.__header.airport_height;
+			pt.PointType = enumPointType::AIRPORT;
+			pt.id = index++;
+			pt_vec.push_back(pt);
+
+			std::vector< UAVFlightPoint >::const_iterator it_pt = route_design.__flight_point.begin();
+			for (; it_pt != route_design.__flight_point.end(); it_pt++)
+			{
+				pt.X = it_pt->__longitude;
+				pt.Y = it_pt->__latitude;
+				pt.Z = it_pt->__height;
+				pt.PointType = (enumPointType)(int)it_pt->__flight_point_type;
+				pt.id = index++;
+				pt_vec.push_back(pt);
+			}
+
+			out_shp.add_record(pt_vec);
+			out_shp.close_files();
+		}
+		catch (std::string& e)
+		{
+			throw e + "Exception in PolygonAreaFlightRouteDesign::OutputRouteFile() ";
+		}
+
+	}
 

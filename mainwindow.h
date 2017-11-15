@@ -63,6 +63,8 @@ public:
 	void setKMLFileList(std::list<QString> list);
 
 	std::vector<Point2DArray> getRouteDesignPoint();
+
+	void getAitportPositon(double &lon, double &lat);
 protected:
     Gomo::FlightRoute::FlightParameter m_flight_param;
 

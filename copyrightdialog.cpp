@@ -7,15 +7,12 @@ CopyRightDialog::CopyRightDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
     QPalette pal=ui->mywidget->palette();
     //pal.setBrush(QPalette::Window,QPixmap("C:/Users/wangmiao/Documents/GitHub/UAVRouter/build-UAVRouter-Desktop_Qt_5_2_1_MSVC2010_32bit-Release/release/pics/logo.png"));
-    pal.setBrush(QPalette::Window,QPixmap("./pics/logo.png"));
+    pal.setBrush(QPalette::Window,QPixmap(":/images/logo.png"));
     ui->mywidget->setPalette(pal);
     ui->mywidget->setAutoFillBackground(true);
-    //ui->mywidget->show();
-
-
+    ui->mywidget->show();
 }
 
 CopyRightDialog::~CopyRightDialog()

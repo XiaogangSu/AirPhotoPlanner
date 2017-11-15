@@ -281,6 +281,12 @@ std::vector<Point2DArray> MainWindow::getRouteDesignPoint()
 	return ptRouteArrayVec;
 }
 
+void MainWindow::getAitportPositon(double &lon, double &lat)
+{
+	lon = ui->editAirportLongitude->text().toDouble();
+	lat = ui->editAirportLatitude->text().toDouble();
+}
+
 void MainWindow::on_toolButtonOutputSelect_clicked()
 {
     QString s = QFileDialog::getSaveFileName(this,"Choose a Flight Route Design File...",

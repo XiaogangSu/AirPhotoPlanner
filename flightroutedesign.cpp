@@ -227,7 +227,7 @@ void FlightRouteDesign::OutputRouteFile()
             UAVRouteOutputer::OutputRouteDesignFileAsTextEncrypted(m_route_design_WGS84,*it);
         }
 
-
+		UAVRouteOutputer::OutputRouteDesignFileAsSHP(m_route_design_WGS84, *it);
     }
 
 }
