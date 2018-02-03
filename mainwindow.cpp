@@ -47,7 +47,13 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pCopyRightDialog=NULL;
     ptrChild_TV = NULL;
     listInputKmlFile.clear();
+
+	m_baseHeight    = 0.0;
+	m_cam_pixelsize = 0.0;
+	m_cam_focus     = 0.0;
+	m_resolution    = 0.0;
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -99,12 +105,6 @@ void MainWindow::on_toolButtonAirport_clicked()
 
             //QMessageBox::information(NULL, tr("Path"), tr("You selected ") + s);
         }
-
-
-
-
-
-
 }
 
 void MainWindow::on_toolButton_Region_clicked()
@@ -215,8 +215,6 @@ void MainWindow::on_cmdDesignStart_clicked()
     cam.width = ui->editCamWidth->text().toLong();
     cam.height = ui->editCamHeight->text().toLong();
     cam.pixelsize = ui->editPixelsize->text().toDouble()/1000.0; //um => mm
-
-
     m_flight_param.CameraInfo=cam;
 
     m_flight_param.AverageElevation= ui->editDatumHeight->text().toDouble();
@@ -234,9 +232,7 @@ void MainWindow::on_cmdDesignStart_clicked()
     OGRPoint airportLoc(x_airport,y_airport,z_airport);
     m_flight_param.airport.SetLocation(airportLoc);
 
-
     //m_flight_param.OutputFilePathname=ui->textOutputFile->toPlainText().toStdString();
-
     FlightRouteDesign * route_desinger = DesignTaskFactory::CreateFlightRouteDeigner(m_flight_param);
     QFileInfo fi(ui->textOutputFile->toPlainText());
     QString outputbasename=fi.absolutePath()+"/"+fi.baseName();
@@ -261,6 +257,40 @@ void MainWindow::on_cmdDesignStart_clicked()
     delete route_desinger;
     route_desinger=NULL;
 	this->close();
+}
+
+void MainWindow::start_Design()
+{
+	if (!fillInFlightParamRegionFiles())
+	{
+		QMessageBox::information(this,
+			tr("Path Error"),
+			tr("You didn't select any files."));
+		return;
+	}
+
+	FlightRouteDesign * route_desinger = DesignTaskFactory::CreateFlightRouteDeigner(m_flight_param);
+	QFileInfo fi(ui->textOutputFile->toPlainText());
+	QString outputbasename = fi.absolutePath() + "/" + fi.baseName();
+	QString outputBinary = outputbasename + ".bht";
+	QString outputText = outputbasename + ".ght";
+	QString outputKML = outputbasename + ".kml";
+	QString outputGST = outputbasename + ".gst";
+
+	qDebug("route_desinger->AddOutPutFileName(outputBinary.toStdString());()");
+
+	//route_desinger->AddOutPutFileName(outputBinary.toStdString());
+	route_desinger->AddOutPutFileName(outputText.toStdString());
+	route_desinger->AddOutPutFileName(outputKML.toStdString());
+	//route_desinger->AddOutPutFileName(outputGST.toStdString());
+	qDebug("route_desinger->PerformRouteDesign()");
+	route_desinger->PerformRouteDesign();
+	route_desinger->OutputRouteFile();
+	UAVRouteDesign route_WGS84 = route_desinger->getRouteDesign();
+	createRouteDesignPoint(route_WGS84);
+
+	delete route_desinger;
+	route_desinger = NULL;
 }
 
 void MainWindow::createRouteDesignPoint(const UAVRouteDesign routeDesignWGS84)
@@ -299,6 +329,20 @@ void MainWindow::on_toolButtonOutputSelect_clicked()
 
 }
 
+double MainWindow::getBaseHeight()
+{
+	return m_baseHeight;
+}
+
+double MainWindow::getFlightHeigh(double zoneHeight)
+{
+	return m_resolution / m_cam_pixelsize * m_cam_focus + zoneHeight;
+}
+
+void MainWindow::setZoneHeight(std::vector<double> flighHeight_vec)
+{
+	m_flight_param.FightHeight_Vec = flighHeight_vec;
+}
 
 void MainWindow::on_btn_unittest_clicked()
 {
@@ -424,4 +468,36 @@ bool MainWindow::fillInFlightParamRegionFiles()
 void MainWindow::setKMLFileList(std::list<QString> list)
 {
 	listInputKmlFile = list;
+}
+void MainWindow::on_saveParam_clicked()
+{
+	DigitalCameraInfo cam;
+	cam.f = ui->editFocus->text().toDouble();
+	cam.width = ui->editCamWidth->text().toLong();
+	cam.height = ui->editCamHeight->text().toLong();
+	cam.pixelsize = ui->editPixelsize->text().toDouble() / 1000.0; //um => mm
+	m_flight_param.CameraInfo = cam;
+
+	m_flight_param.AverageElevation = ui->editDatumHeight->text().toDouble();
+	m_flight_param.GuidanceEntrancePointsDistance = ui->editGEDist->text().toDouble();
+	m_flight_param.overlap = ui->editoverlaprate->text().toDouble() / 100.0;
+	m_flight_param.overlap_crossStrip = ui->editOverlapSide->text().toDouble() / 100.0;
+	m_flight_param.RedudantBaselines = ui->editRedudantBaseline->text().toInt();
+	//绝对航高 = 地面分辨率 / 象元*焦距 + 基准面高度
+
+	m_resolution    = ui->editFlightHeight->text().toDouble();
+	m_cam_pixelsize = cam.pixelsize;
+	m_cam_focus     = cam.f;
+	m_baseHeight    = m_flight_param.AverageElevation;
+	m_flight_param.FightHeight = m_resolution / m_cam_pixelsize * m_cam_focus + m_baseHeight;
+	//Airport
+	double x_airport, y_airport, z_airport;
+	x_airport = ui->editAirportLongitude->text().toDouble();
+	y_airport = ui->editAirportLatitude->text().toDouble();
+	z_airport = ui->editAirportAltitude->text().toDouble();
+	OGRPoint airportLoc(x_airport, y_airport, z_airport);
+	m_flight_param.airport.SetLocation(airportLoc);
+
+	//m_flight_param.OutputFilePathname=ui->textOutputFile->toPlainText().toStdString();
+	this->close();
 }

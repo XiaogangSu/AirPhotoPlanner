@@ -6,48 +6,20 @@
 
 MainWindowFrame::MainWindowFrame()
 {
-    init();
-	setWindowTitle("AirPhotoPlanner");
-
-	min_pix_scale = 1;
-	_map_tool_status = MAP_ACTION::MA_NULL;
-
-	penRegion = QPen(Qt::blue, 3);
-	penRoute = QPen(Qt::red, 2);
-	_pen_eagle_eye = QPen(Qt::blue, 1);
-	_brush_eagle_eye = QBrush(Qt::darkGray);
-
-	gradRegion =  QRadialGradient(50, 50, 50, 70, 70);
-//	gradRegion.setColorAt(0.0, Qt::black);
-	brushRegion = QBrush(QColor(255, 100, 0, 80), Qt::CrossPattern); // 最后一项为透明度
-
-	pixAirport.load(":/images/airport.png");
-	brushAirport = QBrush(QPixmap(":/images/airport.png"));
-	statusBarLabel = new QLabel;
-	setMouseTracking(true);
-	bStartPlan = false;
-
-	_zoom_out_cursor = new QCursor(QPixmap(":/images/zoom_out.png"), -1, -1);
-	_zoom_in_cursor = new QCursor(QPixmap(":/images/zoom_in.png"), -1, -1);
-	_pan_cursor = new QCursor(QPixmap(":/images/pan.png"), -1, -1);
-//	createEagleEye();
-}
-
-void MainWindowFrame::init()
-{
-//	QDesktopWidget* desktopWidget = QApplication::desktop();
-//	clientRect = desktopWidget->screenGeometry();
-	clientRect = geometry();
+	//	QDesktopWidget* desktopWidget = QApplication::desktop();
+	//	clientRect = desktopWidget->screenGeometry();
+	//	clientRect = geometry();
 	//设置背景黑色
 	QPalette pal(this->palette());
 	pal.setColor(QPalette::Background, Qt::black);
 	setAutoFillBackground(true);
 	setPalette(pal);
+
 	setWindowState(Qt::WindowMaximized);
 	isUntitled = true;
 
-//	clientRect = desktopWidget->screenGeometry();
-	clientRect = geometry();
+	//	clientRect = desktopWidget->screenGeometry();
+	//	clientRect = geometry();
 	//   textEdit = new QTextEdit;
 	//   setCentralWidget(textEdit);
 	createActions();
@@ -55,54 +27,341 @@ void MainWindowFrame::init()
 	createToolBars();
 	createStatusBar();
 
-	zoomLevel = 0;
+	setWindowTitle("AirPhotoPlanner");
+
+	min_pix_scale = 1;
+	_map_tool_status = MAP_ACTION::MA_NULL;
+
+	penRoute = QPen(Qt::red, 2);
+
+	penRegion_Not_Select = QPen(Qt::blue, 3);
+	penRegion = QPen(Qt::yellow, 3);
+
+	_pen_eagle_eye = QPen(Qt::blue, 1);
+	_brush_eagle_eye = QBrush(Qt::darkGray);
+
+	gradRegion =  QRadialGradient(50, 50, 50, 70, 70);
+//	gradRegion.setColorAt(0.0, Qt::black);
+	brushRegion_Not_Select = QBrush(QColor(0, 0, 255, 80), Qt::CrossPattern); // 最后一项为透明度
+	brushRegion = QBrush(QColor(255, 255, 0, 80), Qt::CrossPattern); // 最后一项为透明度
+
+	pixAirport.load(":/images/airport.png");
+	brushAirport = QBrush(QPixmap(":/images/airport.png"));
+	statusBarLabel = new QLabel;
+	setMouseTracking(true);
+
+	_zoom_out_cursor = new QCursor(QPixmap(":/images/zoom_out.png"), -1, -1);
+	_zoom_in_cursor = new QCursor(QPixmap(":/images/zoom_in.png"), -1, -1);
+	_pan_cursor = new QCursor(QPixmap(":/images/pan.png"), -1, -1);
+	_pen_grad = QPen(Qt::darkBlue, 1, Qt::DashLine);
+	_pen_scale = QPen(Qt::black, 2, Qt::SolidLine);
+
+	bStartPlan = false;
+	_b_flag_show_grad = true;
+	_b_flag_show_scale = true;
+	_b_flag_show_eagle = true;
+	_b_flag_show_dtm = true;
+	_b_flag_show_image = true;
+
+	init();
+	InitTreeWidget();
+
+	m_zoneParam = new ZoneParamDialog(this);
+	m_zoneParam->hide();
+//	createEagleEye();
+}
+
+void MainWindowFrame::InitTreeWidget()
+{
+	_area_list_widget = new QTreeWidget;
+	_area_list_widget->setHeaderLabels(QStringList() << " " << " " << " ");
+	_area_list_widget->setColumnWidth(0, 130);
+	_area_list_widget->setColumnWidth(1, 100);
+	_area_list_widget->setWindowTitle(" ");
+
+	_p_basic_tree_item = new QTreeWidgetItem(QStringList() << "基本设置");
+//	_p_basic_tree_item->setCheckState(0, Qt::Checked);
+	_p_zone_tree_item = new QTreeWidgetItem(QStringList() << "摄区管理");
+
+	_p_level_tree_item = new QTreeWidgetItem(QStringList() << "图层选择");
+//	_p_zone_tree_item->setCheckState(0, Qt::Checked);
+
+	_area_list_widget->addTopLevelItem(_p_basic_tree_item);
+	_area_list_widget->addTopLevelItem(_p_zone_tree_item);
+	_area_list_widget->addTopLevelItem(_p_level_tree_item);
+
+	QTreeWidgetItem *item_show = new QTreeWidgetItem;
+	item_show->setText(0, "显示网格");
+	item_show->setCheckState(0, Qt::Checked);
+	_p_basic_tree_item->addChild(item_show);
+
+	QTreeWidgetItem *child_color = new QTreeWidgetItem;
+	child_color->setText(0, "网格颜色");
+	_comb_clolor_grad = new QComboBox(this);
+	connect(_comb_clolor_grad, SIGNAL(currentIndexChanged(int)), this, SLOT(on_comb_clolor_changed()));
+	QStringList colorNameList = QColor::colorNames();
+	QString colorName;
+	foreach(colorName, colorNameList)
+	{
+		QPixmap pix_color(70, 20);
+		pix_color.fill(QColor(colorName));
+		_comb_clolor_grad->addItem(QIcon(pix_color), NULL);
+		_comb_clolor_grad->setIconSize(QSize(70, 20));
+		_comb_clolor_grad->setSizeAdjustPolicy(QComboBox::AdjustToContents);	//设置下拉列表的尺寸符合内容的大小
+	}
+	_comb_clolor_grad->setCurrentIndex(4);
+	_pen_grad.setColor(QColor(colorNameList[4]));
+	_p_basic_tree_item->addChild(child_color);
+	_area_list_widget->setItemWidget(child_color, 1, _comb_clolor_grad);
+
+	QTreeWidgetItem *item_eagle = new QTreeWidgetItem;
+	item_eagle->setText(0, "显示鹰眼");
+	item_eagle->setCheckState(0, Qt::Checked);
+	_p_basic_tree_item->addChild(item_eagle);
+
+	QTreeWidgetItem *item_scale = new QTreeWidgetItem;
+	item_scale->setText(0, "显示比例");
+	item_scale->setCheckState(0, Qt::Checked);
+	_p_basic_tree_item->addChild(item_scale);
+
+	QTreeWidgetItem *item_dtm = new QTreeWidgetItem;
+	item_dtm->setText(0, "DTM");
+	item_dtm->setCheckState(0, Qt::Checked);
+	_p_level_tree_item->addChild(item_dtm);
+
+	QTreeWidgetItem *item_image = new QTreeWidgetItem;
+	item_image->setText(0, "影像");
+	item_image->setCheckState(0, Qt::Checked);
+	_p_level_tree_item->addChild(item_image);
+
+	_area_list_widget->show();
+	_area_list_widget->setMouseTracking(true);
+	_area_list_widget->expandAll();
+
+	_p_tree_menu = new QMenu();//tree的右键菜单  
+	_p_tree_menu->setTitle("摄区参数");
+	connect(_p_tree_menu, SIGNAL(triggered()), this, SLOT(on_zoom_param_menu()));
+//	connect(_area_list_widget, SIGNAL(itemChanged(QTreeWidgetItem * item, int column)), this,
+//		     SLOT(treeItemChanged(QTreeWidgetItem * item, int column)));
+//	connect(_area_list_widget, &QStandardItemModel::itemChanged, this, &MainWindowFrame::treeItemChanged);
+
+	connect(_area_list_widget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(slotItemPressed(QTreeWidgetItem*, int)));
+
+	connect(_area_list_widget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
+		this, SLOT(treeItemChanged(QTreeWidgetItem*)));
+	connect(_area_list_widget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+		this, SLOT(slotItemChanged(QTreeWidgetItem*, int)));
+}
+
+void MainWindowFrame::init()
+{
+	zoomLevel = MIN_ZOOM_SCALE;
 	QVector<TileID> tileIdList;
-	_imageDTMList =
+	//get image
+	_map_image_list =
 		GetFileList(
-		DTM_PATH,
+		IMAGE_PATH,
 		zoomLevel,
 		tileIdList,
 		false);
 
-	if (_imageDTMList.size() > 0)
+	//get DTM
+	GetDTMFile();
+
+	if (_map_image_list.size() > 0)
 	{
-		_eagle_eye_image.load(_imageDTMList[0][0].imageDir);
-		GetTileListBoundingbox(_imageDTMList, zoomLevel, _left_top_x, _left_top_y, _right_bottom_x, _right_bottom_y);
+		GetTileListBoundingbox(_map_image_list, zoomLevel, _left_top_x, _left_top_y, _right_bottom_x, _right_bottom_y);
 
-		_eagle_left_top_x = _left_top_x;
-		_eagle_left_top_y = _left_top_y;
-		_eagle_right_bottom_x = _right_bottom_x;
-		_eagle_right_bottom_y = _right_bottom_y;
-
-		_pix_maxx = _imageDTMList.size() * DTM_PNG_PIX;
-		_pix_maxy = _imageDTMList[0].size() * DTM_PNG_PIX;
+		//the map move to center
+		dtmProcess.LonLatToMeters(-174.0, 75.0, _left_top_x, _left_top_y);
+		_pix_maxx = _map_image_list.size() * DTM_PNG_PIX;
+		_pix_maxy = _map_image_list[0].size() * DTM_PNG_PIX;
 		_lon_max = _right_bottom_x;
 		_lat_min = _right_bottom_y;
 
 		double boundingbox[4];
-		dtmProcess.TileMetersBound(_imageDTMList[0][0].tx, _imageDTMList[0][0].ty, zoomLevel, boundingbox);
+		dtmProcess.TileMetersBound(_map_image_list[0][0].tx, _map_image_list[0][0].ty, zoomLevel, boundingbox);
 		_lonDel_PerDTM = boundingbox[2] - boundingbox[0];
 		_latDel_PerDTM = boundingbox[3] - boundingbox[1];
 
 		_pix_x_scale = (double)DTM_PNG_PIX / (double)(_lonDel_PerDTM);
 		_pix_y_scale = (double)DTM_PNG_PIX / (double)(_latDel_PerDTM);
+	}
 
-		QVector< QVector<QImageDTM> >::iterator iter;
-		QVector< QImageDTM >::iterator im;
+	QVector< QVector<QImageDTM> > _image_eagle_list;
+	tileIdList.clear();
+	_image_eagle_list =
+		GetFileList(
+		IMAGE_PATH,
+		0,
+		tileIdList,
+		false);
 
-		for (iter = _imageDTMList.begin(); iter != _imageDTMList.end(); iter++)
+	if (_map_image_list.size() > 0)
+	{
+		_eagle_eye_image.load(_image_eagle_list[0][0].imageDir);
+		GetTileListBoundingbox(_map_image_list, zoomLevel, _eagle_left_top_x,
+			                   _eagle_left_top_y, _eagle_right_bottom_x, _eagle_right_bottom_y);
+	}
+}
+
+void MainWindowFrame::resizeEvent(QResizeEvent* size)
+{
+	QRect rt = this->geometry();
+	_map_client_rect = QRect(
+		QPoint(TREE_WIDTH, rt.y() + fileToolBar->height()),
+		rt.bottomRight());
+
+	QVector< QVector<QImageDTM> >::iterator iter;
+	QVector< QImageDTM >::iterator im;
+	for (iter = _map_image_list.begin(); iter != _map_image_list.end(); iter++)
+	{
+		for (im = iter->begin(); im != iter->end(); im++)
 		{
-			for (im = iter->begin(); im != iter->end(); im++)
+			SetDTMLeftTopPIX(*im);
+		}
+	}
+
+	_b_flag_resize = true;
+}
+
+void MainWindowFrame::create_list()
+{
+	if (_b_flag_resize)
+	{
+		QRect rt = this->geometry();
+		rt.setWidth(TREE_WIDTH);
+		int hight = fileToolBar->height();
+		rt.setTop(rt.y() + hight);
+		_area_list_widget->setParent(this);
+		_area_list_widget->setGeometry(rt);
+		_area_list_widget->show();
+	}
+
+	_b_flag_resize = false;
+}
+
+/*
+void MainWindowFrame::on_comb_comb_show_grad_changed()
+{
+	if (_comb_show_grad->currentIndex() == 0)
+	{
+		_b_flag_show_grad = true;
+	}
+	else
+	{
+		_b_flag_show_grad = false;
+	}
+	update();
+}
+*/
+void MainWindowFrame::on_comb_clolor_changed()
+{
+	int num = _comb_clolor_grad->currentIndex();
+	QStringList colorNameList = QColor::colorNames();
+	_pen_grad.setColor(QColor(colorNameList[num]));
+	update();
+}
+
+void MainWindowFrame::treeItemChanged(QTreeWidgetItem * item)
+{
+	if (item == nullptr)
+	{
+		return;
+	}
+}
+
+void MainWindowFrame::on_zone_param()
+{
+	ZoneParamDialog dlg(this);
+	if (_zone_param_index < _regionInfo.size())
+	{
+		dlg.setZoneParam(
+			_regionInfo[_zone_param_index].regionName,
+			_regionInfo[_zone_param_index].base_height);
+	}
+	else
+	{
+		dlg.setZoneParam(
+			"",
+			0.0);
+	}
+
+	int res = dlg.exec();
+
+	double zone_height = dlg.get_zone_hight();
+	if (_zone_param_index < _regionInfo.size())
+	{
+		_regionInfo[_zone_param_index].base_height = zone_height;
+	}
+}
+
+void MainWindowFrame::slotItemPressed(QTreeWidgetItem *item, int column)
+{
+	QTreeWidgetItem * pr = item->parent();
+	if (pr == _p_zone_tree_item)
+	{
+		if (!(QGuiApplication::mouseButtons() & Qt::RightButton))
+		{
+			return;
+		}
+
+		_zone_param_index = pr->indexOfChild(item);
+		QMenu menu;
+		menu.addAction(zoneParamAct);
+		menu.exec(QCursor::pos());
+	}
+}
+
+void MainWindowFrame::slotItemChanged(QTreeWidgetItem *item, int column)
+{
+	QTreeWidgetItem * pr = item->parent();
+	if (pr == _p_basic_tree_item)
+	{
+		if (item->text(column) == "显示网格")
+		{
+			_b_flag_show_grad = item->checkState(column);
+		}
+		else if (item->text(column) == "显示鹰眼")
+		{
+			_b_flag_show_eagle = item->checkState(column);
+		}
+		else if (item->text(column) == "显示比例")
+		{
+			_b_flag_show_scale = item->checkState(column);
+		}
+	}
+	else if (pr == _p_zone_tree_item)
+	{
+		int num = pr->indexOfChild(item);
+
+		if (_regionInfo.size() > num)
+		{
+			_regionInfo[num].bSelect = item->checkState(column);
+			if (_regionInfo[num].bSelect)
 			{
-				SetDTMLeftTopPIX(*im);
+				center_to_region();
 			}
 		}
 	}
+	else if (pr == _p_level_tree_item)
+	{
+		if (item->text(column) == "DTM")
+		{
+			_b_flag_show_dtm = item->checkState(column);
+		}
+		else if (item->text(column) == "影像")
+		{
+			_b_flag_show_image = item->checkState(column);
+		}
+	}
+
+	update();
 }
 
 MainWindowFrame::MainWindowFrame(const QString &fileName)
 {
-    init();
+ //   init();
 //    loadFile(fileName);
 }
 
@@ -143,8 +402,10 @@ void MainWindowFrame::open()
         dlg.setFileMode(QFileDialog::ExistingFiles);
         if(dlg.exec() == QFileDialog::Accepted)
         {
+			//not free the memory
             QStringList slist = dlg.selectedFiles();
             listInputKmlFile.clear();
+			_regionInfo.clear();
 			for (int i = 0; i < slist.size(); ++i)
 			{
 				listInputKmlFile.push_back(slist.at(i));
@@ -153,11 +414,79 @@ void MainWindowFrame::open()
 				Point2DArray ptArray;
 				GeomertyConvertor::OGRGeomery2Point2DArray(regionORG.get(), ptArray);
 				ptRegionArrayVec.push_back(ptArray);
+
+				WGS84Coord min_coord;
+				WGS84Coord max_coord;
+				min_coord.x = 99999.0;
+				min_coord.y = 99999.0;
+				max_coord.x = 0;
+				max_coord.y = 0;
+
+				Point2DArray::const_iterator iter = ptArray.begin();
+				for (; iter != ptArray.end(); iter++)
+				{
+					if (min_coord.x > iter->X)
+					{
+						min_coord.x = iter->X;
+					}
+					if (min_coord.y > iter->Y)
+					{
+						min_coord.y = iter->Y;
+					}
+
+					if (max_coord.x < iter->X)
+					{
+						max_coord.x = iter->X;
+					}
+					if (max_coord.y < iter->Y)
+					{
+						max_coord.y = iter->Y;
+					}
+				}
+
+				///get KML NAME
+				int len = slist.at(i).length();
+				int j = len;
+				for (; j >= 0; j--)
+				{
+					if (slist.at(i).mid(j, 1) == "/")
+					{
+						break;
+					}
+				}
+
+				QString str = slist.at(i).mid(j + 1, len - j - 5);
+				RegionInfo info;
+				info.regionName = str;
+				info.bSelect = true;
+				info.base_height = INVALID_ZONE_HEIGHT;
+				dtmProcess.LonLatToMeters(min_coord.x, min_coord.y, info.minCoord.x, info.minCoord.y);
+				dtmProcess.LonLatToMeters(max_coord.x, max_coord.y, info.maxCoord.x, info.maxCoord.y);
+				_regionInfo.push_back(info);
 			}
         }
     }
 
+	center_to_region();
     createRegionPixPoint();
+	
+	if (_p_zone_tree_item->childCount() > 0)
+	{
+		for (int i = 0; i < _p_zone_tree_item->childCount(); i++)
+		{
+			_p_zone_tree_item->removeChild(_p_zone_tree_item->child(i));
+		}
+	}
+	std::vector<RegionInfo>::const_iterator iter = _regionInfo.begin();
+	for (; iter != _regionInfo.end(); iter++)
+	{
+		QTreeWidgetItem *item_zoom = new QTreeWidgetItem;
+		item_zoom->setText(0, iter->regionName);
+		item_zoom->setCheckState(0, Qt::Checked);
+		_p_zone_tree_item->addChild(item_zoom);
+	}
+
+	create_list();
 
 /*
     // show the management dialog
@@ -197,52 +526,136 @@ void MainWindowFrame::open()
     }*/
 }
 
-void MainWindowFrame::createRegionPixPoint()
+void MainWindowFrame::center_to_region()
 {
-	double minx = 999999.9;
-	double miny = 999999.9;
-	double maxx = 0.0;
-	double maxy = 0.0;
-	/*
-	std::vector<Point2DArray>::iterator iter = ptRegionArrayVec.begin();
-	for (; iter != ptRegionArrayVec.end(); iter++)
+	std::vector<RegionInfo>::const_iterator iter =  _regionInfo.begin();
+	double minx = 999999999.9;
+	double miny = 999999999.9;
+	double maxx = -999999999.9;
+	double maxy = -999999999.9;
+	bool flag = false;
+	for (; iter != _regionInfo.end(); iter++)
 	{
-		Point2DArray::iterator subit = (*iter).begin();
-
-		for (; subit != iter->end(); subit++)
+		if (!iter->bSelect)
 		{
-			if (subit->X < minx)
+			continue;
+		}
+
+		if (minx > iter->minCoord.x)
+		{
+			minx = iter->minCoord.x;
+		}
+		if (maxx < iter->maxCoord.x)
+		{
+			maxx = iter->maxCoord.x;
+		}
+		if (miny > iter->minCoord.y)
+		{
+			miny = iter->minCoord.y;
+		}
+		if (maxy < iter->maxCoord.y)
+		{
+			maxy = iter->maxCoord.y;
+		}
+
+		flag = true;
+	}
+
+	if (!flag)
+	{
+		return;
+	}
+
+	double tmp_lon_del = maxx - minx;
+	double tmp_lat_del = maxy - miny;
+
+	double tmpx = _right_bottom_x - _left_top_x;
+	double tmpy = _left_top_y - _right_bottom_y;
+
+	if (tmpx < tmp_lon_del || tmpy < tmp_lat_del)
+	{
+		do 
+		{
+			if (zoomLevel == MIN_ZOOM_SCALE)
 			{
-				minx = subit->X;
+				break;
 			}
-			if (subit->X > maxx)
+			tmpx = tmpx * 2.0;
+			tmpy = tmpy * 2.0;
+
+			_lonDel_PerDTM *= 2.0;
+			_latDel_PerDTM *= 2.0;
+			zoomLevel--;
+		} while (tmpx < tmp_lon_del || tmpy < tmp_lat_del);
+	}
+	else
+	{
+		while (tmpx > tmp_lon_del && tmpy > tmp_lat_del)
+		{
+			if (zoomLevel == MAX_ZOOM_SCALE)
 			{
-				maxx = subit->X;
+				break;
 			}
-			if (subit->Y < miny)
+
+			_lonDel_PerDTM /= 2.0;
+			_latDel_PerDTM /= 2.0;
+
+			tmpx = _lonDel_PerDTM * _map_client_rect.width() / (double)DTM_PNG_PIX;
+			tmpy = _latDel_PerDTM *_map_client_rect.height() / (double)DTM_PNG_PIX;
+
+			if (tmpx > tmp_lon_del && tmpy > tmp_lat_del)
 			{
-				miny = subit->Y;
+				zoomLevel++;
 			}
-			if (subit->Y > maxy)
+			else
 			{
-				maxy = subit->Y;
+				_lonDel_PerDTM *= 2.0;
+				_latDel_PerDTM *= 2.0;
+
+				tmpx *= 2.0;
+				tmpy *= 2.0;
+				break;
 			}
 		}
 	}
 
-	_lon_min = minx - (maxx - minx) / 8.0;
-	_lon_max = maxx + (maxx - minx) / 8.0;
-	_lat_min = miny - (maxy - miny) / 8.0;
-	_lat_max = maxy + (maxy - miny) / 8.0;
-	*/
-//	QDesktopWidget* desktopWidget = QApplication::desktop();
-//	clientRect = desktopWidget->screenGeometry();
-	clientRect = geometry();
+	_pix_x_scale = (double)DTM_PNG_PIX / (double)(_lonDel_PerDTM);
+	_pix_y_scale = (double)DTM_PNG_PIX / (double)(_latDel_PerDTM);
+
+	_left_top_x = minx - (tmpx - tmp_lon_del) / 2;
+	_left_top_y = maxy + (tmpy - tmp_lat_del) / 2;
+
+//	double lon = min_region.x - (tmpx - tmp_lon_del) / 2;
+//	double lat = max_region.y + (tmpy - tmp_lat_del) / 2;
+//	dtmProcess.LonLatToMeters(lon, lat, _left_top_x, _left_top_y);
+
+	_right_bottom_x = _left_top_x + (double)(_map_client_rect.width()) / _pix_x_scale;
+	_right_bottom_y = _left_top_y - (double)(_map_client_rect.height()) / _pix_y_scale;
+
+
+	if (_right_bottom_x > _lon_max)
+	{
+		_right_bottom_x = _lon_max;
+	}
+
+	if (_right_bottom_y < _lat_min)
+	{
+		_right_bottom_y = _lat_min;
+	}
+
+	reset_bottom_xy();
+	createRegionPixPoint();
+	update();
+}
+
+void MainWindowFrame::createRegionPixPoint()
+{
+	pixRegionVec.clear();
 	std::vector<Point2DArray>::iterator iter_pix = ptRegionArrayVec.begin();
 	for (; iter_pix != ptRegionArrayVec.end(); iter_pix++)
 	{
 		Point2DArray pixArray;
-		converWgs2Pix(clientRect, *iter_pix, pixArray);
+		converWgs2Pix(_map_client_rect, *iter_pix, pixArray);
 		pixRegionVec.push_back(pixArray);
 	}
 }
@@ -268,7 +681,7 @@ void MainWindowFrame::converWgs2Pix(
 	}
 }
 
-QPoint MainWindowFrame::converWgs2Pix(WGS84Coord wgs)
+QPoint MainWindowFrame::converWgs2Pix(const QRect &clientRect, WGS84Coord wgs)
 {
 	double mx = 0.0;
 	double my = 0.0;
@@ -283,6 +696,8 @@ QPoint MainWindowFrame::converWgs2Pix(WGS84Coord wgs)
 
 void MainWindowFrame::about()
 {
+	on_zone_param();
+
 	m_pCopyRightDialog = new CopyRightDialog(this);
 	m_pCopyRightDialog->show();
 }
@@ -299,9 +714,13 @@ void MainWindowFrame::createActions()
     openKML->setStatusTip(tr("Open an existing file"));
     connect(openKML, SIGNAL(triggered()), this, SLOT(open()));
 
-    setParameter = new QAction(QIcon(":/images/setting.png"), tr("&规划"), this);
+    setParameter = new QAction(QIcon(":/images/setting.png"), tr("&规划参数"), this);
     setParameter->setStatusTip(tr("Save the document to disk"));
     connect(setParameter, SIGNAL(triggered()), this, SLOT(setPlanParameter()));
+
+	startPlan = new QAction(QIcon(":/images/start.png"), tr("&规划"), this);
+	startPlan->setStatusTip(tr("Start Plan"));
+	connect(startPlan, SIGNAL(triggered()), this, SLOT(on_start_plan()));
 
     exitAct = new QAction(tr("Exit"), this);
 //  exitAct->setShortcuts(QKeySequence::Quit);
@@ -328,6 +747,9 @@ void MainWindowFrame::createActions()
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
+	zoneParamAct = new QAction(tr("&设置参数"), this);
+	connect(zoneParamAct, SIGNAL(triggered()), this, SLOT(on_zone_param()));
+
 /*
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
@@ -344,6 +766,7 @@ void MainWindowFrame::createMenus()
 //! [implicit tr context]
     fileMenu->addAction(openKML);
     fileMenu->addAction(setParameter);
+	fileMenu->addAction(startPlan);
     fileMenu->addAction(exitAct);
 	
     mapMenu = menuBar()->addMenu(tr("&地图操作"));
@@ -362,12 +785,19 @@ void MainWindowFrame::createToolBars()
     fileToolBar = addToolBar(tr("File"));
     fileToolBar->addAction(openKML);
     fileToolBar->addAction(setParameter);
-
+	fileToolBar->setAutoFillBackground(true);
+	fileToolBar->setMouseTracking(true);
     mapToolBar = addToolBar(tr("Map"));
 	mapToolBar->addAction(zoomin);
 	mapToolBar->addAction(zoomout);
     mapToolBar->addAction(pan);
 	mapToolBar->addAction(selectObj);
+	mapToolBar->setAutoFillBackground(true);
+	mapToolBar->setMouseTracking(true);
+	startToolBar = addToolBar(tr("Run"));
+	startToolBar->addAction(startPlan);
+	startToolBar->setAutoFillBackground(true);
+	startToolBar->setMouseTracking(true);
 }
 
 void MainWindowFrame::createStatusBar()
@@ -428,24 +858,59 @@ void MainWindowFrame::setPlanParameter()
 	param_window.show();
 	param_window.setKMLFileList(listInputKmlFile);
 	bStartPlan = true;
- //   ptrChild_TV = new child_tv(this);
-//    param_window.move(this->x() + this->frameSize().width(), this->y());
-//    param_window.setKMLFileList(listInputKmlFile);
-//    param_window.show();
 }
 
+void MainWindowFrame::on_start_plan()
+{
+	double base_height = param_window.getBaseHeight();
+	double flightHeigt = param_window.getFlightHeigh(base_height);
+
+	std::vector<double> zoneflighHeight_vec;
+	std::vector<RegionInfo>::const_iterator iter = _regionInfo.begin();
+	for (; iter != _regionInfo.end(); iter++)
+	{
+		if (iter->base_height > INVALID_ZONE_HEIGHT)
+		{
+			double tmp = param_window.getFlightHeigh(iter->base_height);
+			zoneflighHeight_vec.push_back(tmp);
+		}
+		else
+		{
+			zoneflighHeight_vec.push_back(flightHeigt);
+		}
+	}
+
+	param_window.setZoneHeight(zoneflighHeight_vec);
+	param_window.start_Design();
+	QMessageBox::information(this,
+		tr("Success"),
+		tr("Air line planning completion!"));
+}
 void MainWindowFrame::paintEvent(QPaintEvent *)
 {
-	drawDTM();
+	DrawImage();
+	DrawDTM();
 	DrawGrid();
+	DrawScale();
 	QPainter pRegion(this);
-	pRegion.setPen(penRegion);
 //	pRegion.setBrush(gradRegion);
-	pRegion.setBrush(brushRegion);
 
    std::vector<Point2DArray>::iterator iter = pixRegionVec.begin();
+   int index = 0;
    for(; iter != pixRegionVec.end(); iter++)
    {
+	   pRegion.setBrush(brushRegion_Not_Select);
+	   pRegion.setPen(penRegion_Not_Select);
+	   if (_regionInfo.size() > index)
+	   {
+		   if (_regionInfo[index].bSelect)
+		   {
+			   pRegion.setBrush(brushRegion);
+			   pRegion.setPen(penRegion);
+		   }
+	   }
+
+	   index++;
 	   QPointF *pRegionPoint = new QPointF[iter->size()];
 	   Point2DArray::iterator subit = (*iter).begin();
 
@@ -467,10 +932,11 @@ void MainWindowFrame::paintEvent(QPaintEvent *)
 	   std::vector<Point2DArray>  ptArray = param_window.getRouteDesignPoint();
 	   std::vector<Point2DArray>::iterator iter_pix = ptArray.begin();
 	   pixRouteVec.clear();
+
 	   for (; iter_pix != ptArray.end(); iter_pix++)
 	   {
 		   Point2DArray pixArray;
-		   converWgs2Pix(clientRect, *iter_pix, pixArray);
+		   converWgs2Pix(_map_client_rect, *iter_pix, pixArray);
 		   pixRouteVec.push_back(pixArray);
 	   }
 
@@ -499,12 +965,13 @@ void MainWindowFrame::paintEvent(QPaintEvent *)
 	   double lon = 0.0;
 	   double lat = 0.0;
 	   param_window.getAitportPositon(lon, lat);
-	   QPoint qpt = converWgs2Pix(WGS84Coord(lon, lat, 0));
+	   QPoint qpt = converWgs2Pix(_map_client_rect, WGS84Coord(lon, lat, 0));
 	   painter.setBrush(brushAirport);
 	   painter.drawPixmap(qpt, pixAirport);
    }
 
-   createEagleEye();
+   DrawEagleEye();
+   create_list();
 }
 
 void MainWindowFrame::zoominMap()
@@ -522,7 +989,7 @@ void MainWindowFrame::zoomoutMap()
 void MainWindowFrame::moveMap()
 {
 	_map_tool_status = MAP_ACTION::MA_MOVE;
-	this->setCursor(*_pan_cursor);
+	this->setCursor(Qt::ClosedHandCursor);
 }
 
 void MainWindowFrame::selectMap()
@@ -547,7 +1014,7 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
 		{
 //			QDesktopWidget* desktopWidget = QApplication::desktop();
 //			clientRect = desktopWidget->screenGeometry();
-			clientRect = geometry();
+
 			int x_move = event->x() - _left_button_down_pt.x();
 			int y_move = event->y() - _left_button_down_pt.y();
 
@@ -555,7 +1022,7 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
 			_right_bottom_x -= double(x_move) / _pix_x_scale;
 			//if (_left_top_x < 0)
 			{
-				_right_bottom_x = _left_top_x + double(clientRect.width()) / _pix_x_scale;
+				_right_bottom_x = _left_top_x + double(_map_client_rect.width()) / _pix_x_scale;
 			}
 
 			_left_top_y += double(y_move) / _pix_y_scale;
@@ -563,7 +1030,7 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
 
 			//if (_left_top_y < 0)
 			{
-				_right_bottom_y = _left_top_y - double(clientRect.height()) / _pix_y_scale;
+				_right_bottom_y = _left_top_y - double(_map_client_rect.height()) / _pix_y_scale;
 			}
 
 			QVector<TileID> tileIdList = getTileList(
@@ -571,22 +1038,26 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
 				WGS84Coord(_right_bottom_x, _right_bottom_y, 0.0),
 				zoomLevel);
 
-			_imageDTMList = GetFileList(DTM_PATH,
+			//get image
+			_map_image_list = GetFileList(IMAGE_PATH,
 				zoomLevel,
 				tileIdList);
 
-			if (_imageDTMList.size() == 0 || _imageDTMList[0].size() == 0)
+			//get DTM
+			GetDTMFile();
+
+			if (_map_image_list.size() == 0 || _map_image_list[0].size() == 0)
 			{
 				return;
 			}
 
-			int pixX = _imageDTMList.size() * DTM_PNG_PIX;
-			int pixY = _imageDTMList[0].size() * DTM_PNG_PIX;
+			int pixX = _map_image_list.size() * DTM_PNG_PIX;
+			int pixY = _map_image_list[0].size() * DTM_PNG_PIX;
 
-			if (pixX > clientRect.width())
+			if (pixX > _map_client_rect.width())
 			{
-				_pix_maxx = clientRect.width();
-				_right_bottom_x = _left_top_x + (double)clientRect.width() / _pix_x_scale;
+				_pix_maxx = _map_client_rect.width();
+				_right_bottom_x = _left_top_x + (double)_map_client_rect.width() / _pix_x_scale;
 			}
 			else
 			{
@@ -594,10 +1065,10 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
 				_right_bottom_x = _left_top_x - (double)pixX / _pix_x_scale;
 			}
 
-			if (pixY > clientRect.height())
+			if (pixY > _map_client_rect.height())
 			{
-				_pix_maxy = clientRect.height();
-				_right_bottom_y = _left_top_y - (double)clientRect.y() / _pix_y_scale;
+				_pix_maxy = _map_client_rect.height();
+				_right_bottom_y = _left_top_y - (double)_map_client_rect.y() / _pix_y_scale;
 			}
 			else
 			{
@@ -611,7 +1082,7 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
 			{
 				if (_map_tool_status == MAP_ACTION::MA_ZOOMIN)
 				{
-					if (zoomLevel < 10)
+					if (zoomLevel < MAX_ZOOM_SCALE)
 					{
 						zoomLevel++;
 						set_global_variable(QPoint(event->x(), event->y()), _map_tool_status);
@@ -619,7 +1090,7 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
 				}
 				else
 				{
-					if (zoomLevel > 0)
+					if (zoomLevel > MIN_ZOOM_SCALE)
 					{
 						zoomLevel--;
 						set_global_variable(QPoint(event->x(), event->y()), _map_tool_status);
@@ -637,7 +1108,7 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
 			for (; iter_pix != ptRegionArrayVec.end(); iter_pix++)
 			{
 				Point2DArray pixArray;
-				converWgs2Pix(clientRect, *iter_pix, pixArray);
+				converWgs2Pix(_map_client_rect, *iter_pix, pixArray);
 				pixRegionVec.push_back(pixArray);
 			}
 
@@ -648,21 +1119,114 @@ void MainWindowFrame::mouseReleaseEvent(QMouseEvent *event)
  
 void MainWindowFrame::mouseMoveEvent(QMouseEvent *e)
 {
+	if (_map_tool_status != MAP_ACTION::MA_SELECTION && _map_tool_status != MA_NULL)
+	{
+		if (e->x() < _map_client_rect.left() ||
+			e->x() > _map_client_rect.right() ||
+			e->y() < _map_client_rect.top() ||
+			e->y() > _map_client_rect.bottom())
+		{
+			this->setCursor(Qt::ArrowCursor);
+		}
+		else
+		{
+			if (this->cursor().shape() == Qt::ArrowCursor)
+			{
+				if (_map_tool_status == MAP_ACTION::MA_ZOOMIN)
+				{
+					this->setCursor(*_zoom_in_cursor);
+				}
+				else if (_map_tool_status == MAP_ACTION::MA_ZOOMOUT)
+				{
+					this->setCursor(*_zoom_out_cursor);
+				}
+				else
+				{
+					this->setCursor(Qt::ClosedHandCursor);
+				}
+			}
+		}
+	}
+
 	WGS84Coord wgs = point2WGS84Coord(QPointF(e->x(), e->y()));
 	double lon = 0.0;
 	double lat = 0.0;
 	dtmProcess.MetersToLonLat(wgs.x, wgs.y, lon, lat);
-	if (lon >360)
+	if (lon > 180)
 	{
-		lon -= 360;
+		lon = 180;
 	}
-
+	else if (lon < -180)
+	{
+		lon = -180;
+	}
+	if (lat > 90)
+	{
+		lat = 90;
+	}
+	else if (lat < -90)
+	{
+		lat = -90;
+	}
 	QPalette pe;
 	pe.setColor(QPalette::WindowText, Qt::blue);
 
 	statusBarLabel->setPalette(pe);
-	statusBarLabel->setText("                     WGS84: lon " + QString::number(lon) + ", lat " + QString::number(lat));
+	statusBarLabel->setText("                                                                    WGS84: lon " +
+		            QString::number(lon) + ", lat " + QString::number(lat));
 	statusBar()->addWidget(statusBarLabel);
+}
+
+void MainWindowFrame::reset_bottom_xy()
+{
+	QVector<TileID> tileIdList = getTileList(
+		WGS84Coord(_left_top_x, _left_top_y, 0.0),
+		WGS84Coord(_right_bottom_x, _right_bottom_y, 0.0),
+		zoomLevel);
+
+	//get image
+	_map_image_list = GetFileList(IMAGE_PATH,
+		zoomLevel,
+		tileIdList);
+
+	//get DTM
+	GetDTMFile();
+
+	if (_map_image_list.size() > 0)
+	{
+		int pixX = _map_image_list.size() * DTM_PNG_PIX;
+		int pixY = _map_image_list[0].size() * DTM_PNG_PIX;
+
+		if (pixX > _map_client_rect.width())
+		{
+			_pix_maxx = _map_client_rect.width();
+			_right_bottom_x = _left_top_x + (double)_map_client_rect.width() / _pix_x_scale;
+		}
+		else
+		{
+			_pix_maxx = pixX;
+			_right_bottom_x = _left_top_x + (double)pixX / _pix_x_scale;
+		}
+
+		if (pixY > _map_client_rect.height())
+		{
+			_pix_maxy = _map_client_rect.height();
+			_right_bottom_y = _left_top_y - (double)_map_client_rect.height() / _pix_y_scale;
+		}
+		else
+		{
+			_pix_maxy = pixY;
+			_right_bottom_y = _left_top_y - (double)pixY / _pix_y_scale;
+		}
+	}
+	else
+	{
+		_pix_maxx = _map_client_rect.width();
+		_right_bottom_x = _left_top_x + (double)_map_client_rect.width() / _pix_x_scale;
+
+		_pix_maxy = _map_client_rect.height();
+		_right_bottom_y = _left_top_y - (double)_map_client_rect.height() / _pix_y_scale;
+	}
 }
 
 void MainWindowFrame::set_global_variable(const QPointF& point, const MAP_ACTION map_action)
@@ -672,11 +1236,6 @@ void MainWindowFrame::set_global_variable(const QPointF& point, const MAP_ACTION
 		return;
 	}
 
-//	QDesktopWidget* desktopWidget = QApplication::desktop();
-//	clientRect = desktopWidget->screenGeometry();
-	clientRect = geometry();
-	double lon_del = 0.0;
-	double lat_del = 0.0;
 	WGS84Coord wgsptBefore = point2WGS84Coord(point);
 
 	if (map_action == MA_ZOOMIN)
@@ -693,15 +1252,16 @@ void MainWindowFrame::set_global_variable(const QPointF& point, const MAP_ACTION
 	_pix_x_scale = (double)DTM_PNG_PIX / (double)(_lonDel_PerDTM);
 	_pix_y_scale = (double)DTM_PNG_PIX / (double)(_latDel_PerDTM);
 
-	_left_top_x = wgsptBefore.x - ((double)point.x() / _pix_x_scale);;
-	_left_top_y = wgsptBefore.y + ((double)point.y() / _pix_y_scale);;
-	
+	_left_top_x = wgsptBefore.x - ((double)(point.x() - _map_client_rect.left()) / _pix_x_scale);
+	_left_top_y = wgsptBefore.y + ((double)(point.y() - _map_client_rect.top()) / _pix_y_scale);
+
 	double lon = 0.0;
 	double lat = 0.0;
 	dtmProcess.MetersToLonLat(_left_top_x, _left_top_y, lon, lat);
 
-	_right_bottom_x = _left_top_x + (double)(clientRect.width()) / _pix_x_scale;
-	_right_bottom_y = _left_top_y - (double)(clientRect.height()) / _pix_y_scale;
+	_right_bottom_x = _left_top_x + (double)(_map_client_rect.width()) / _pix_x_scale;
+	_right_bottom_y = _left_top_y - (double)(_map_client_rect.height()) / _pix_y_scale;
+
 	if (_right_bottom_x > _lon_max)
 	{
 		_right_bottom_x = _lon_max;
@@ -712,39 +1272,7 @@ void MainWindowFrame::set_global_variable(const QPointF& point, const MAP_ACTION
 		_right_bottom_y = _lat_min;
 	}
 
-	QVector<TileID> tileIdList = getTileList(
-		        WGS84Coord(_left_top_x, _left_top_y, 0.0),
-		        WGS84Coord(_right_bottom_x, _right_bottom_y, 0.0),
-				zoomLevel);
-
-	_imageDTMList = GetFileList(DTM_PATH,
-		                        zoomLevel,
-		                        tileIdList);
-
-	int pixX = _imageDTMList.size() * DTM_PNG_PIX;
-	int pixY = _imageDTMList[0].size() * DTM_PNG_PIX;
-
-	if (pixX > clientRect.width())
-	{
-		_pix_maxx = clientRect.width();
-		_right_bottom_x = _left_top_x + (double)clientRect.width() / _pix_x_scale;
-	}
-	else
-	{
-		_pix_maxx = pixX;
-		_right_bottom_x = _left_top_x + (double)pixX / _pix_x_scale;
-	}
-
-	if (pixY > clientRect.height())
-	{
-		_pix_maxy = clientRect.height();
-		_right_bottom_y = _left_top_y - (double)clientRect.height() / _pix_y_scale;
-	}
-	else
-	{
-		_pix_maxy = pixY;
-		_right_bottom_y = _left_top_y - (double)pixY / _pix_y_scale;
-	}
+	reset_bottom_xy();
 }
 
 WGS84Coord MainWindowFrame::point2WGS84Coord(const QPointF& point)
@@ -752,8 +1280,8 @@ WGS84Coord MainWindowFrame::point2WGS84Coord(const QPointF& point)
 	WGS84Coord wgspt;
 	if (min_pix_scale != 0)
 	{
-		wgspt.x = _left_top_x + (double)point.x() / _pix_x_scale;
-		wgspt.y = _left_top_y - (double)point.y() / _pix_y_scale;
+		wgspt.x = _left_top_x + (double)(point.x() - _map_client_rect.x())/ _pix_x_scale;
+		wgspt.y = _left_top_y - (double)(point.y() - _map_client_rect.y())/ _pix_y_scale;
 	}
 
 	return wgspt;
@@ -819,8 +1347,8 @@ QVector< QVector<QImageDTM> > MainWindowFrame::GetFileList(
 	}
 	orderImageDTM(toalImage);
 
-	QVector< QVector<QImageDTM> >::iterator iter;
-	QVector< QImageDTM >::iterator im;
+//	QVector< QVector<QImageDTM> >::iterator iter;
+//	QVector< QImageDTM >::iterator im;
 
 	/*
 	for (iter = toalImage.begin(); iter != toalImage.end(); iter++)
@@ -842,8 +1370,8 @@ void MainWindowFrame::SetDTMLeftTopPIX(QImageDTM &qDTM)
 	qDTM.metersX = bound[0];
 	qDTM.metersY = bound[3];
 
-	qDTM.pixX = (int)((qDTM.metersX - _left_top_x) * _pix_x_scale + 0.5);
-	qDTM.pixY = (int)((_left_top_y - qDTM.metersY) * _pix_y_scale + 0.5);
+	qDTM.pixX = (int)((qDTM.metersX - _left_top_x) * _pix_x_scale + 0.5) + _map_client_rect.left();
+	qDTM.pixY = (int)((_left_top_y - qDTM.metersY) * _pix_y_scale + 0.5) + _map_client_rect.top();
 }
 
 bool MainWindowFrame::JudgeInTileX(const int tileX, const QVector<TileID> &tileIdList)
@@ -890,7 +1418,7 @@ void MainWindowFrame::orderImageDTM(QVector<QImageDTM> &qImageDTM)
 	{
 		for (int j = i + 1; j < qImageDTM.size(); j++)
 		{
-			if (qImageDTM[i].ty < qImageDTM[j].ty)
+			if (qImageDTM[i].ty > qImageDTM[j].ty)
 			{
 				QImageDTM tmp = qImageDTM[i];
 				qImageDTM[i] = qImageDTM[j];
@@ -919,31 +1447,64 @@ void MainWindowFrame::orderImageDTM(QVector< QVector<QImageDTM> > &qImageDTM)
 	}
 }
 
-void MainWindowFrame::drawDTM()
+void MainWindowFrame::GetDTMFile()
 {
+	if (!_b_flag_show_dtm)
+	{
+		return;
+	}
+
+	QVector<TileID> tileIdList = getTileList(
+		WGS84Coord(_left_top_x, _left_top_y, 0.0),
+		WGS84Coord(_right_bottom_x, _right_bottom_y, 0.0),
+		zoomLevel);
+
+	_map_dtm_list = GetFileList(
+		                  DTM_PATH,
+		                  zoomLevel,
+		                  tileIdList);
+}
+
+void MainWindowFrame::DrawDTM()
+{
+	if (!_b_flag_show_dtm)
+	{
+		return;
+	}
+
 	QPainter painter(this);
-
-//	QVector<TileID> tileIdList = getTileList(WGS84Coord(lon_min, lat_min, 0.0), 
-//		                                     WGS84Coord(lon_max, lat_max, 0.0),
-//											 zoomLevel);
-
-//	QVector< QVector<QImageDTM> > qImageDTMList = GetFileList(DTM_PATH, zoomLevel, tileIdList);
-    
-//	if (!SetGlobalParam(qImageDTMList))
-//	{
-//		return;
-//	}
-
-	int px = 0; 
-	int py = 0;
-	int tmph = 0;
 
 	QVector< QVector<QImageDTM> >::iterator iter;
 	QVector< QImageDTM >::iterator im;
 
-	for (iter = _imageDTMList.begin(); iter != _imageDTMList.end(); iter++)
+	for (iter = _map_dtm_list.begin(); iter != _map_dtm_list.end(); iter++)
 	{
-		tmph = py = 0;
+		for (im = iter->begin(); im != iter->end(); im++)
+		{
+			//平滑
+			QImage qtm;
+			qtm.load(im->imageDir);
+
+			qtm = qtm.scaled(qtm.width(), qtm.height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+			painter.drawPixmap(im->pixX , im->pixY, qtm.width(), qtm.height(), QPixmap::fromImage(qtm));
+		}
+	}
+}
+
+void MainWindowFrame::DrawImage()
+{
+	if (!_b_flag_show_image)
+	{
+		return;
+	}
+
+	QPainter painter(this);
+
+	QVector< QVector<QImageDTM> >::iterator iter;
+	QVector< QImageDTM >::iterator im;
+
+	for (iter = _map_image_list.begin(); iter != _map_image_list.end(); iter++)
+	{
 		for (im = iter->begin(); im != iter->end(); im++)
 		{
 			//平滑
@@ -952,11 +1513,7 @@ void MainWindowFrame::drawDTM()
 
 			qtm = qtm.scaled(qtm.width(), qtm.height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 			painter.drawPixmap(im->pixX, im->pixY, qtm.width(), qtm.height(), QPixmap::fromImage(qtm));
-			py += qtm.width();
-			tmph = qtm.height();
 		}
-
-		px += tmph;
 	}
 }
 
@@ -1004,9 +1561,6 @@ bool MainWindowFrame::GetTileListBoundingbox(
 	double startbd[4];
 	dtmProcess.TileMetersBound(qImageDTMList[0][0].tx, qImageDTMList[0][0].ty, zoom, startbd);
 
-	left_top_x = startbd[0];
-	left_top_y = startbd[3];
-
 	int size = qImageDTMList.size();
 	int subSize = qImageDTMList[size - 1].size();
 
@@ -1016,7 +1570,10 @@ bool MainWindowFrame::GetTileListBoundingbox(
 							   zoom,
 							   endbd);
 
-	right_bottom_x = startbd[2];
+
+	left_top_x = startbd[0];
+	left_top_y = endbd[3];
+	right_bottom_x = endbd[2];
 	right_bottom_y = startbd[1];
 
 	return true;
@@ -1098,13 +1655,17 @@ void MainWindowFrame::GetMaxTileNumber(QRect cRect, int &txNum, int &tyNum)
 
 QPoint MainWindowFrame::converMeters2Pix(double x, double y)
 {
-	double tmp_pixx = (double)(x - _left_top_x) * _pix_x_scale + clientRect.left();
-	double tmp_pixy = (double)(_left_top_y - y) * _pix_y_scale + clientRect.top();
+	double tmp_pixx = (double)(x - _left_top_x) * _pix_x_scale + _map_client_rect.left();
+	double tmp_pixy = (double)(_left_top_y - y) * _pix_y_scale + _map_client_rect.top();
 	return QPoint((int)tmp_pixx, (int)tmp_pixy);
 }
 
 void MainWindowFrame::DrawGrid()
 {
+	if (!_b_flag_show_grad)
+	{
+		return;
+	}
 	QRect rt = geometry();
 	if (zoomLevel < 2)
 	{
@@ -1125,8 +1686,7 @@ void MainWindowFrame::DrawGrid()
 		scale = 1;
 	}
 	QPainter painter(this);
-	QPen penG = QPen(Qt::darkBlue, 1, Qt::DashLine);
-	painter.setPen(penG);
+	painter.setPen(_pen_grad);
 	double lon_left_top = 0.0;
 	double lat_left_top = 0.0;
 	dtmProcess.MetersToLonLat(_left_top_x, _left_top_y, lon_left_top, lat_left_top);
@@ -1134,8 +1694,8 @@ void MainWindowFrame::DrawGrid()
 	int leftx = (lon_left_top / scale + 1) * scale;
 	int lefty = (lat_left_top / scale + 1) * scale;
 
-	double max_x = _left_top_x + clientRect.width() / _pix_x_scale;
-	double min_y = _left_top_y - clientRect.height() / _pix_x_scale;
+	double max_x = _left_top_x + _map_client_rect.width() / _pix_x_scale;
+	double min_y = _left_top_y - _map_client_rect.height() / _pix_x_scale;
 
 	if (lefty < -89)
 	{
@@ -1158,7 +1718,7 @@ void MainWindowFrame::DrawGrid()
 		QPoint ePoint = QPoint(fPoint.x(), rt.height());
 		painter.drawLine(fPoint, ePoint);
 
-		painter.drawText(QPoint(fPoint.x(), rt.y() + 20), QString::number(leftx));
+		painter.drawText(QPoint(fPoint.x(), rt.y() + _map_client_rect.y()), QString::number(leftx));
 		painter.drawText(ePoint, QString::number(leftx));
 
 		leftx += scale;
@@ -1169,22 +1729,75 @@ void MainWindowFrame::DrawGrid()
 	while (my >= min_y)
 	{
 		QPoint fPoint = converMeters2Pix(_left_top_x, my);
-		fPoint = QPoint(0, fPoint.y());
-		QPoint ePoint = QPoint(clientRect.width(), fPoint.y());
+		fPoint = QPoint(_map_client_rect.left(), fPoint.y());
+		QPoint ePoint = QPoint(_map_client_rect.right(), fPoint.y());
 		painter.drawLine(fPoint, ePoint);
 
 		painter.drawText(fPoint, QString::number(lefty));
-		painter.drawText(ePoint, QString::number(lefty));
+		painter.drawText(QPoint(ePoint.x() - 15, ePoint.y()), QString::number(lefty));
 
 		lefty -= scale;
 		dtmProcess.LonLatToMeters(_left_top_x, lefty, mx, my);
-
-
 	}
 }
 
-void MainWindowFrame::createEagleEye()
+void MainWindowFrame::DrawScale()
 {
+	if (!_b_flag_show_scale)
+	{
+		return;
+	}
+
+	QPainter painter(this);
+	painter.setPen(_pen_scale);
+
+	QPoint fPoint = QPoint(_map_client_rect.x() + SCALE_START_X, _map_client_rect.bottom() - SCALE_START_Y);
+	QPoint ePoint = QPoint(_map_client_rect.x() + SCALE_START_X + SCALE_LENGTH, 
+	                    	_map_client_rect.bottom() - SCALE_START_Y);
+
+
+	painter.drawLine(QPoint(fPoint.x(), fPoint.y() - 10), fPoint);
+	painter.drawLine(fPoint, ePoint);
+	painter.drawLine(ePoint, QPoint(ePoint.x(), ePoint.y() - 10));
+	painter.drawLine(QPoint(fPoint.x() + SCALE_LENGTH / 2, fPoint.y()),
+		             QPoint(fPoint.x() + SCALE_LENGTH / 2, fPoint.y() -5));
+
+
+	WGS84Coord start = point2WGS84Coord(fPoint);
+	WGS84Coord end   = point2WGS84Coord(ePoint);
+	double length = sqrt((start.x - end.x)*(start.x - end.x) +
+		                 (start.x - end.x)*(start.x - end.x));
+
+	QString strText;
+	if (length > 1000)
+	{
+		if (length > 10000)
+		{
+			strText = QString::number((int)length / 1000);
+		}
+		else
+		{
+			int tmp = length / 100.0;
+			strText = QString::number((double)tmp / 10.0);
+		}
+
+		strText += " km";
+	}
+	else
+	{
+		strText = QString::number((int)length);
+		strText += " m";
+	}
+	painter.drawText(QPoint(ePoint.x() + 5, ePoint.y()), strText);
+
+}
+
+void MainWindowFrame::DrawEagleEye()
+{
+	if (!_b_flag_show_eagle)
+	{
+		return;
+	}
 	QRect rt = geometry();
 	QPainter painter(this);
 //	painter.setPen(penRegion);

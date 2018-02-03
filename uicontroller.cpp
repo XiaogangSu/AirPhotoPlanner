@@ -37,7 +37,7 @@ void UIController::LoadDefaultDesignParameters2UI()
 
     //flight info
     QString datumHeight("0.0");
-    QString flightHeight("1000.0");
+    QString flightHeight("0.1");
     QString guidanceEntrancePointsDistance("100.0");
     QString overlap("70");
     QString cross_overlap("30");

@@ -24,6 +24,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
+	void start_Design();
 private slots:
 
     void on_toolButtonAirport_clicked();
@@ -48,6 +49,8 @@ private slots:
 
     void on_menuAboutUs_triggered();
 
+    void on_saveParam_clicked();
+
 protected:
     Ui::MainWindow *ui;
     child_tv *ptrChild_TV;
@@ -65,10 +68,22 @@ public:
 	std::vector<Point2DArray> getRouteDesignPoint();
 
 	void getAitportPositon(double &lon, double &lat);
+
+	double getBaseHeight();
+
+	double getFlightHeigh(double zoneHeight);
+
+	void setZoneHeight(std::vector<double> flighHeight_vec);
 protected:
     Gomo::FlightRoute::FlightParameter m_flight_param;
 
 	std::vector<Point2DArray> ptRouteArrayVec;
+
+	double m_baseHeight;
+	double m_cam_pixelsize;
+	double m_cam_focus;
+	double m_resolution;
+
 private:
 	void createRouteDesignPoint(const UAVRouteDesign routeDesignWGS84);
 };

@@ -49,7 +49,8 @@ SOURCES += main.cpp\
     SHP/dbfopen.c \
     SHP/safileio.c \
     SHP/shpopen.c \
-    SHP/shptree.c
+    SHP/shptree.c \
+    ZoneParamDialog.cpp
 
 HEADERS  += mainwindow.h \
     mainwindowframe.h \
@@ -76,7 +77,8 @@ HEADERS  += mainwindow.h \
     DTM/cateye_srtm.h \
     SHP/shapefil.h \
     SHP/shapefileHelper.h \
-    SHP/shpwriter.h
+    SHP/shpwriter.h \
+    ZoneParamDialog.h
 
 FORMS    += mainwindow.ui \
     child_tv.ui \

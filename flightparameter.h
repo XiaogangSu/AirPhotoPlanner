@@ -74,7 +74,8 @@ namespace Gomo {
             DigitalCameraInfo CameraInfo;
 
             double AverageElevation;  //摄区地面平均高程,m,in WGS84
-            double FightHeight;       //航高,m,in WGS84
+            double FightHeight;       //平均摄区航高,m,in WGS84
+			std::vector<double> FightHeight_Vec; //摄区航高, m,in WGS84
 
             double GuidanceEntrancePointsDistance;  // 引导点,进入点距离,m
             double overlap;                         // (0,1)

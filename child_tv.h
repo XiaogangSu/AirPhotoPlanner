@@ -28,6 +28,8 @@ private slots:
 
     void on_pushButton_4_clicked();
 
+    void on_child_tv_accepted();
+
 private:
     QString getFileNameFromPath(QString strPath);
     void ReDisplyOnTabView();

@@ -12,5 +12,6 @@
         <file>images/zoom_out.png</file>
         <file>images/airport.png</file>
         <file>images/arrow.png</file>
+        <file>images/start.png</file>
     </qresource>
 </RCC>

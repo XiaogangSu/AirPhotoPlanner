@@ -30,7 +30,10 @@
         {
             for(int i=0; i<m_parameter.GetRegionCount(); i++ )
             {
-
+				if (i < m_parameter.FightHeight_Vec.size())
+				{
+					m_parameter.FightHeight = m_parameter.FightHeight_Vec[i];
+				}
                 // make param_single as the parameter for the i-th region
                 param_single.FightRegion = m_parameter.GetFlightRegionGeometry(i);
 

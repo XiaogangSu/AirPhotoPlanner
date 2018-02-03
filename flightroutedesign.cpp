@@ -116,8 +116,6 @@ void FlightRouteDesign::GaussProjection()
     streamdebug<<"flight region geometry before gauss projection:"<<geom_before_proj_wkt<<std::endl;
     qDebug(streamdebug.str().c_str());
     m_FightRegion_Gauss.get()->transformTo(&m_ProjTM);
-
-
 }
 
 // form m_route_design_CaussProj to m_route_design_WGS84

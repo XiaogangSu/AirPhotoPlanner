@@ -182,3 +182,8 @@ void child_tv::on_pushButton_4_clicked()
 {
     this->hide();
 }
+
+void child_tv::on_child_tv_accepted()
+{
+
+}

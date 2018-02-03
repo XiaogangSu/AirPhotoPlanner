@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>621</width>
-    <height>471</height>
+    <width>660</width>
+    <height>385</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -122,10 +122,10 @@
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>350</y>
+      <x>340</x>
+      <y>10</y>
       <width>311</width>
-      <height>51</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="title">
@@ -147,7 +147,7 @@
     <widget class="QLineEdit" name="editDatumHeight">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>160</x>
        <y>20</y>
        <width>131</width>
        <height>20</height>
@@ -155,6 +155,19 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>50</y>
+       <width>281</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>(若多个摄区地形差异较大,在摄区列表里单独设置)</string>
      </property>
     </widget>
    </widget>
@@ -232,7 +245,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>设计航高-海拔高  (m)</string>
+      <string>地面分辨率</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="editFlightHeight">
@@ -301,28 +314,12 @@
      </property>
     </widget>
    </widget>
-   <widget class="QCommandLinkButton" name="cmdDesignStart">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>260</y>
-      <width>172</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>设计航线</string>
-    </property>
-   </widget>
    <widget class="QTextEdit" name="textOutputFile">
     <property name="geometry">
      <rect>
       <x>350</x>
-      <y>190</y>
-      <width>251</width>
+      <y>280</y>
+      <width>281</width>
       <height>21</height>
      </rect>
     </property>
@@ -334,7 +331,7 @@
     <property name="geometry">
      <rect>
       <x>350</x>
-      <y>170</y>
+      <y>260</y>
       <width>171</width>
       <height>16</height>
      </rect>
@@ -346,8 +343,8 @@
    <widget class="QToolButton" name="toolButtonOutputSelect">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>170</y>
+      <x>590</x>
+      <y>260</y>
       <width>40</width>
       <height>18</height>
      </rect>
@@ -373,8 +370,8 @@
     <property name="geometry">
      <rect>
       <x>340</x>
-      <y>10</y>
-      <width>271</width>
+      <y>100</y>
+      <width>311</width>
       <height>151</height>
      </rect>
     </property>
@@ -397,7 +394,7 @@
     <widget class="QToolButton" name="toolButtonAirport">
      <property name="geometry">
       <rect>
-       <x>220</x>
+       <x>250</x>
        <y>20</y>
        <width>40</width>
        <height>18</height>
@@ -410,7 +407,7 @@
     <widget class="QLineEdit" name="editAirportLongitude">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>160</x>
        <y>50</y>
        <width>131</width>
        <height>20</height>
@@ -420,7 +417,7 @@
     <widget class="QLineEdit" name="editAirportLatitude">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>160</x>
        <y>80</y>
        <width>131</width>
        <height>20</height>
@@ -430,7 +427,7 @@
     <widget class="QLineEdit" name="editAirportAltitude">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>160</x>
        <y>110</y>
        <width>131</width>
        <height>20</height>
@@ -476,6 +473,19 @@
       <string>海拔高 (m)</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QPushButton" name="saveParam">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>310</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>保存</string>
+    </property>
    </widget>
   </widget>
   <widget class="QToolBar" name="mainToolBar">

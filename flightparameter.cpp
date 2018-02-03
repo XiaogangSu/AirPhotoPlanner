@@ -18,6 +18,7 @@ namespace Gomo {
              CameraInfo         = rs.CameraInfo;
              AverageElevation   = rs.AverageElevation;
              FightHeight        = rs.FightHeight;
+			 FightHeight_Vec = rs.FightHeight_Vec;
              GuidanceEntrancePointsDistance = rs.GuidanceEntrancePointsDistance;
              overlap            = rs.overlap;
              overlap_crossStrip = rs.overlap_crossStrip;

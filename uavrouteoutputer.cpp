@@ -79,6 +79,7 @@ UAVRouteOutputer::UAVRouteOutputer()
     void UAVRouteOutputer::OutputRouteDesignFileAsTextEncrypted(const UAVRouteDesign & route_design
                                             ,const std::string & output_file)
     {
+        /*
         try
         {
             std::ofstream output_route_file;
@@ -104,7 +105,7 @@ UAVRouteOutputer::UAVRouteOutputer()
             throw e+"Exception in UAVRouteOutputer::OutputRouteDesignFileAsTextEncrypted ";
         }
 
-
+*/
     }
 
     void UAVRouteOutputer::OutputRouteDesignFileAsKML(const UAVRouteDesign & route_design
@@ -195,6 +196,7 @@ UAVRouteOutputer::UAVRouteOutputer()
 	void UAVRouteOutputer::OutputRouteDesignFileAsSHP(const UAVRouteDesign & route_design
 		, const std::string & output_file)
 	{
+        /*
 		try
 		{
 			Shpwriter out_shp;
@@ -229,6 +231,6 @@ UAVRouteOutputer::UAVRouteOutputer()
 		{
 			throw e + "Exception in PolygonAreaFlightRouteDesign::OutputRouteFile() ";
 		}
-
+*/
 	}
 

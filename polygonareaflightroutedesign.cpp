@@ -57,10 +57,7 @@ void PolygonAreaFlightRouteDesign::PerformRouteDesign()
     qDebug("PolygonAreaFlightRouteDesign::PerformRouteDesign()");
 
     FlightRouteDesign::PerformRouteDesign();
-
 }
-
-
 
 bool PolygonAreaFlightRouteDesign::CalculatePolygonOrientaion(const Point2DArray&  polygon_2d,Point2D& center,double& angle)
 {
