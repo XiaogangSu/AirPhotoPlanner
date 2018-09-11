@@ -364,6 +364,10 @@ namespace FlightRoute {
 
         Gomo::Geometry2D::Point2D ToGomoPoint2D()const;
 
+        void OutputAsSkw(std::ostream &out_stream) const;
+
+        void OutputAsTxt(std::ostream &out_stream) const;
+
     } UAVFlightPoint;
 
 

@@ -236,10 +236,11 @@ void MainWindow::on_cmdDesignStart_clicked()
     FlightRouteDesign * route_desinger = DesignTaskFactory::CreateFlightRouteDeigner(m_flight_param);
     QFileInfo fi(ui->textOutputFile->toPlainText());
     QString outputbasename=fi.absolutePath()+"/"+fi.baseName();
-    QString outputBinary = outputbasename +".bht";
-    QString outputText = outputbasename +".ght";
-    QString outputKML = outputbasename +".kml";
-    QString outputGST = outputbasename +".gst";
+    QString outputBinary = outputbasename + ".bht";
+    QString outputText   = outputbasename + ".ght";
+    QString outputKML    = outputbasename + ".kml";
+    QString outputGST    = outputbasename + ".gst";
+    QString outputSKW    = outputbasename + ".skw";
 
     qDebug("route_desinger->AddOutPutFileName(outputBinary.toStdString());()");
 
@@ -248,6 +249,7 @@ void MainWindow::on_cmdDesignStart_clicked()
     route_desinger->AddOutPutFileName(outputText.toStdString());
     route_desinger->AddOutPutFileName(outputKML.toStdString());
     //route_desinger->AddOutPutFileName(outputGST.toStdString());
+    route_desinger->AddOutPutFileName(outputSKW.toStdString());
     qDebug("route_desinger->PerformRouteDesign()");
     route_desinger->PerformRouteDesign();
     route_desinger->OutputRouteFile();
@@ -273,9 +275,10 @@ void MainWindow::start_Design()
 	QFileInfo fi(ui->textOutputFile->toPlainText());
 	QString outputbasename = fi.absolutePath() + "/" + fi.baseName();
 	QString outputBinary = outputbasename + ".bht";
-	QString outputText = outputbasename + ".ght";
-	QString outputKML = outputbasename + ".kml";
-	QString outputGST = outputbasename + ".gst";
+	QString outputText   = outputbasename + ".ght";
+	QString outputKML    = outputbasename + ".kml";
+	QString outputGST    = outputbasename + ".gst";
+    QString outputSkw    = outputbasename + ".skw";
 
 	qDebug("route_desinger->AddOutPutFileName(outputBinary.toStdString());()");
 
@@ -283,6 +286,7 @@ void MainWindow::start_Design()
 	route_desinger->AddOutPutFileName(outputText.toStdString());
 	route_desinger->AddOutPutFileName(outputKML.toStdString());
 	//route_desinger->AddOutPutFileName(outputGST.toStdString());
+    route_desinger->AddOutPutFileName(outputSkw.toStdString());
 	qDebug("route_desinger->PerformRouteDesign()");
 	route_desinger->PerformRouteDesign();
 	route_desinger->OutputRouteFile();
@@ -375,15 +379,17 @@ void MainWindow::on_btn_unittest_clicked()
     QString output("G:/Gomo/Data/0615/output/testmoshikou_single_45deg.txt");
     QFileInfo fi(output);
     QString outputbasename=fi.absolutePath()+"/"+fi.baseName();
-    QString outputBinary = outputbasename +".bht";
-    QString outputText = outputbasename +".ght";
-    QString outputKML = outputbasename +".kml";
-    QString outputGST = outputbasename +".gst";
+    QString outputBinary = outputbasename + ".bht";
+    QString outputText   = outputbasename + ".ght";
+    QString outputKML    = outputbasename + ".kml";
+    QString outputGST    = outputbasename + ".gst";
+    QString outputSkw    = outputbasename + ".skw";
 
     route_desinger->AddOutPutFileName(outputBinary.toStdString());
     route_desinger->AddOutPutFileName(outputText.toStdString());
     route_desinger->AddOutPutFileName(outputKML.toStdString());
     route_desinger->AddOutPutFileName(outputGST.toStdString());
+    route_desinger->AddOutPutFileName(outputSkw.toStdString());
     route_desinger->PerformRouteDesign();
     route_desinger->OutputRouteFile();
 

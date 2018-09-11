@@ -186,6 +186,7 @@ void FlightRouteDesign::OutputRouteFile()
     QString suf_bht("bht");
     QString suf_kml("kml");
     QString suf_gst("gst");
+    QString suf_skw("skw");
 
     std::vector<std::string>::iterator it=m_output_files.begin();
 
@@ -225,6 +226,13 @@ void FlightRouteDesign::OutputRouteFile()
             UAVRouteOutputer::OutputRouteDesignFileAsTextEncrypted(m_route_design_WGS84,*it);
         }
 
+        if (suffix.compare(suf_skw, Qt::CaseInsensitive) == 0)
+        {
+            qDebug("suf_skw");
+            qDebug((*it).c_str());
+            UAVRouteOutputer::OutputRouteDesignFileAsSkw(m_route_design_WGS84, *it);
+        }
+        
 		UAVRouteOutputer::OutputRouteDesignFileAsSHP(m_route_design_WGS84, *it);
     }
 

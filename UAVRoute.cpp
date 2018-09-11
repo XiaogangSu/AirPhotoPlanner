@@ -413,7 +413,70 @@ namespace FlightRoute {
 
     }
 
+    void UAVROUTE_FLIGHT_POINT::OutputAsSkw(std::ostream &out_stream) const
+    {
+        std::string typeFlag("");
 
+        if (__flight_point_type & FLIGTH_POINT_TYPE_A_POINT_MASK &&
+            __flight_point_type & FLIGTH_POINT_TYPE_GUIDE) // A1 
+        {
+            typeFlag = "100";
+        }
+        else if (__flight_point_type & FLIGTH_POINT_TYPE_B_POINT_MASK &&
+                 __flight_point_type & FLIGTH_POINT_TYPE_GUIDE) // B1
+        {
+            typeFlag = "100";
+        }
+        else if (__flight_point_type & FLIGTH_POINT_TYPE_A_POINT_MASK &&
+                 __flight_point_type & FLIGTH_POINT_TYPE_ETRANCE_EXIT) // A2
+        {
+            typeFlag = "1";
+        }
+        else if (__flight_point_type & FLIGTH_POINT_TYPE_B_POINT_MASK &&
+                 __flight_point_type & FLIGTH_POINT_TYPE_ETRANCE_EXIT) // B2
+        {
+            typeFlag = "0";
+        }
+        else
+        {
+            return;
+        }
+
+        out_stream << setiosflags(ios::fixed) << setiosflags(ios::showpoint);
+        out_stream.precision(COORDINATE_DEGREE_PRECISION);
+
+        out_stream << __longitude        << SPACE
+                   << __latitude         << SPACE
+                   << int(__height + .5) << SPACE
+                   << typeFlag.c_str()   << SPACE
+                   << 0                  << SPACE
+                   << 0                  << SPACE
+                   << 0                  << SPACE
+                   << 0                  << SPACE
+                   << 0                  << SPACE
+                   << 0                  << SPACE
+                   << 0                  << std::endl;
+    }
+
+    void UAVROUTE_FLIGHT_POINT::OutputAsTxt(std::ostream &out_stream) const
+    {
+        if (__flight_point_type & FLIGTH_POINT_TYPE_ETRANCE_EXPOSUR)
+        {
+            // strip id and id in strip
+            out_stream << std::setw(3) << std::setfill('0');
+
+            out_stream << __strip_id    << "-"
+                       << __id_in_strip << SPACE;
+
+            // coordinate msg
+            out_stream << setiosflags(ios::fixed) << setiosflags(ios::showpoint);
+            out_stream.precision(COORDINATE_DEGREE_PRECISION);
+
+            out_stream << __longitude << SPACE
+                       << __latitude  << SPACE
+                       << 3           << std::endl;
+        } 
+    }
 
     void UAVROUTE_FLIGHT_POINT::OutputBinary(std::ostream & out_stream) const
     {
