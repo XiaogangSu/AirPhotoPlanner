@@ -25,7 +25,7 @@ public:
     // skwPath: skw file
     // txtPath: txt file
     static void OutputRouteDesignFileAsSkw(const UAVRouteDesign &route_design, 
-                                           const std::string &skwPath)
+                                           const std::string &skwPath);
 };
 
 #endif // UAVROUTEOUTPUTER_H

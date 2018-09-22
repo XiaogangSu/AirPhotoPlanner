@@ -460,7 +460,7 @@ namespace FlightRoute {
 
     void UAVROUTE_FLIGHT_POINT::OutputAsTxt(std::ostream &out_stream) const
     {
-        if (__flight_point_type & FLIGTH_POINT_TYPE_ETRANCE_EXPOSUR)
+        if (__flight_point_type & FLIGTH_POINT_TYPE_EXPOSURE)
         {
             // strip id and id in strip
             out_stream << std::setw(3) << std::setfill('0');

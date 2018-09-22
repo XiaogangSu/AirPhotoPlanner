@@ -62,8 +62,8 @@ void UAVRouteOutputer::OutputRouteDesignFileAsSkw(const UAVRouteDesign &route_de
              it != route_design.__flight_point.end(); 
              ++it)
         {
-            (*it)->OutputAsSkw(outfileSkw);
-            (*it)->OutputAsTxt(outfileTxt);
+            (*it).OutputAsSkw(outfileSkw);
+            (*it).OutputAsTxt(outfileTxt);
         }
 
         outfileSkw.close();
