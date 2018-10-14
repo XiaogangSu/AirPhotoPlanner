@@ -64,47 +64,37 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_toolButtonAirport_clicked()
 {
+    QString s = QFileDialog::getOpenFileName(this,"Choose a Airport Location File...",
+                        ".",
+                        "KML (*.kml *.KML)"
+                        );
 
+    if(s.length() == 0)
+    {
+        QMessageBox::information(NULL, tr("Path error!"), tr("You didn't select any files."));
+    }
+    else
+    {
+        std::auto_ptr<OGRGeometry> airport_geom_ptr =COGRGeometryFileReader::GetFirstOGRPointFromFile(s.toStdString());
 
-        QString s = QFileDialog::getOpenFileName(this,"Choose a Airport Location File...",
-                            ".",
-                            "KML (*.kml *.KML)"
-                            );
+        OGRPoint * pPt=dynamic_cast<OGRPoint *>(airport_geom_ptr.get());
 
-        if(s.length() == 0)
-        {
-            QMessageBox::information(NULL, tr("Path error!"), tr("You didn't select any files."));
-          }
-        else
-        {
-            std::auto_ptr<OGRGeometry> airport_geom_ptr =COGRGeometryFileReader::GetFirstOGRPointFromFile(s.toStdString());
+        OGRPoint airportLoc(pPt->getX(), pPt->getY());
 
-            OGRPoint * pPt=dynamic_cast<OGRPoint *>(airport_geom_ptr.get());
+        //m_flight_param.AirportLocation=airportLoc;
+        m_flight_param.airport.SetLocation(airportLoc);
 
-            OGRPoint airportLoc(pPt->getX(), pPt->getY());
+        QFileInfo fi(s);
+        QString airportfilebasename=fi.baseName();
+        m_flight_param.airport.SetName(airportfilebasename.toStdString());
 
-            //m_flight_param.AirportLocation=airportLoc;
-            m_flight_param.airport.SetLocation(airportLoc);
-
-            QFileInfo fi(s);
-            QString airportfilebasename=fi.baseName();
-            m_flight_param.airport.SetName(airportfilebasename.toStdString());
-
-//            char *location=NULL;
-//            airportLoc.exportToWkt(&location);
-//            QString strloc(location);
-//            ui->labelAirportLocation->setText(strloc);
-
-            QString sLat= QString::number(airportLoc.getY(),'f',6);
-            ui->editAirportLatitude->setText(sLat);
-            QString sLon= QString::number(airportLoc.getX(),'f',6);
-            ui->editAirportLongitude->setText(sLon);
-            QString sAlt= QString::number(airportLoc.getZ(),'f',6);
-            ui->editAirportAltitude->setText(sAlt);
-
-
-            //QMessageBox::information(NULL, tr("Path"), tr("You selected ") + s);
-        }
+        QString sLat= QString::number(airportLoc.getY(),'f',6);
+        ui->editAirportLatitude->setText(sLat);
+        QString sLon= QString::number(airportLoc.getX(),'f',6);
+        ui->editAirportLongitude->setText(sLon);
+        QString sAlt= QString::number(airportLoc.getZ(),'f',6);
+        ui->editAirportAltitude->setText(sAlt);
+    }
 }
 
 void MainWindow::on_toolButton_Region_clicked()
@@ -323,14 +313,13 @@ void MainWindow::getAitportPositon(double &lon, double &lat)
 
 void MainWindow::on_toolButtonOutputSelect_clicked()
 {
-    QString s = QFileDialog::getSaveFileName(this,"Choose a Flight Route Design File...",
-                        ".",
-                        "ght, kml(*.ght(text file) *.kml(KML file))"
-                        );
+    QString s = QFileDialog::getSaveFileName(
+                this,
+                "Choose a Flight Route Design File...",
+                ".",
+                "ght,kml,skw(*.ght(text file) *.kml(KML file) *.skw(SKW file))");
 
     ui->textOutputFile->setText(s);
-
-
 }
 
 double MainWindow::getBaseHeight()

@@ -44,6 +44,7 @@ void UAVRouteOutputer::OutputRouteDesignFileAsSkw(const UAVRouteDesign &route_de
 {
     try
     {
+        qDebug("Input skwPath = %s", skwPath.c_str());
         std::string txtPath = skwPath;
         size_t found = txtPath.find_last_of("skw");
         if (found == string::npos)
@@ -52,7 +53,7 @@ void UAVRouteOutputer::OutputRouteDesignFileAsSkw(const UAVRouteDesign &route_de
         }
         else
         {
-            txtPath.replace(found, 3, "txt");
+            txtPath.replace(found-2, 3, "txt");
         }
 
         std::ofstream outfileSkw(skwPath);

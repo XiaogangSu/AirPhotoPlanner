@@ -112,3 +112,31 @@ COGRGeometryFileReader::GetFirstOGRGeometryFromFile(std::string ogrfile)
 
     return geom_ptr;
 }
+
+void COGRGeometryFileReader::GetPointsFromFile(Point2DArray &pointArray, std::string filePath)
+{
+    OGRRegisterAll();
+    OGRDataSource *pDs = OGRSFDriverRegistrar::Open(filePath.c_str());
+
+    OGRLayer *pLayer = pDs->GetLayer(0);
+    pLayer->ResetReading();
+    OGRFeature *pFeature = NULL;
+    while ((pFeature = pLayer->GetNextFeature()) != NULL)
+    {
+        OGRGeometry *pGeo = pFeature->GetGeometryRef();
+        if (wkbFlatten(pGeo->getGeometryType()) == wkbPolygon)
+        {
+            OGRPolygon *pPolygon = (OGRPolygon*)pGeo;
+            for (int i = 0; i < pPolygon->getExteriorRing()->getNumPoints(); ++i)
+            {
+                double x = pPolygon->getExteriorRing()->getX(i);
+                double y = pPolygon->getExteriorRing()->getY(i);
+                Point2D p(x, y);
+                pointArray.push_back(p);
+            }
+        }
+        OGRFeature::DestroyFeature(pFeature);
+    }
+
+    OGRDataSource::DestroyDataSource(pDs);
+}

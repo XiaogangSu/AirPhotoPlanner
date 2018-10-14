@@ -151,6 +151,7 @@ void MainWindowFrame::InitTreeWidget()
 		this, SLOT(treeItemChanged(QTreeWidgetItem*)));
 	connect(_area_list_widget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
 		this, SLOT(slotItemChanged(QTreeWidgetItem*, int)));
+        
 }
 
 void MainWindowFrame::init()
@@ -406,13 +407,16 @@ void MainWindowFrame::open()
             QStringList slist = dlg.selectedFiles();
             listInputKmlFile.clear();
 			_regionInfo.clear();
-			for (int i = 0; i < slist.size(); ++i)
+
+            for (int i = 0; i < slist.size(); ++i)
 			{
 				listInputKmlFile.push_back(slist.at(i));
-				std::auto_ptr<OGRGeometry> regionORG = COGRGeometryFileReader::GetFirstOGRGeometryFromFile(slist.at(i).toStdString());
-
-				Point2DArray ptArray;
-				GeomertyConvertor::OGRGeomery2Point2DArray(regionORG.get(), ptArray);
+				//std::auto_ptr<OGRGeometry> regionORG = COGRGeometryFileReader::GetFirstOGRGeometryFromFile(slist.at(i).toStdString());
+				//Point2DArray ptArray;
+				//GeomertyConvertor::OGRGeomery2Point2DArray(regionORG.get(), ptArray);
+				
+                Point2DArray ptArray;
+                COGRGeometryFileReader::GetPointsFromFile(ptArray, slist.at(i).toStdString());
 				ptRegionArrayVec.push_back(ptArray);
 
 				WGS84Coord min_coord;

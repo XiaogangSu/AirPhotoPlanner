@@ -462,11 +462,16 @@ namespace FlightRoute {
     {
         if (__flight_point_type & FLIGTH_POINT_TYPE_EXPOSURE)
         {
-            // strip id and id in strip
-            out_stream << std::setw(3) << std::setfill('0');
+            if (__id_in_strip < 1)
+                return;
+            if (__flight_point_type & FLIGTH_POINT_TYPE_A_POINT_MASK)
+                return;
 
-            out_stream << __strip_id    << "-"
-                       << __id_in_strip << SPACE;
+            // strip id and id in strip
+            out_stream << std::setw(3)    << std::setfill('0')
+                       << int(__strip_id) << "-"
+                       << std::setw(3) << std::setfill('0')
+                       << __id_in_strip   << SPACE;
 
             // coordinate msg
             out_stream << setiosflags(ios::fixed) << setiosflags(ios::showpoint);
