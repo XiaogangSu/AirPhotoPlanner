@@ -15,10 +15,10 @@ RC_ICONS = logo.ico
 
 INCLUDEPATH = .
 
-INCLUDEPATH += D:/My_Work/library/gdal/Release/include
+INCLUDEPATH += F:/04_Cateye/04_code/gdal/Release/include
 INCLUDEPATH += ./niGeom
 
-LIBS += D:/My_Work/library/gdal/Release/lib/gdal_i.lib
+LIBS += F:/04_Cateye/04_code/gdal/Release/lib/gdal_i.lib
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -43,13 +43,13 @@ SOURCES += main.cpp\
     ./niGeom/source/niPolygon2dFn.cpp \
     ./niGeom/source/niGeomMath2d.cpp \
     copyrightdialog.cpp \
-    DTM/cateye_mercator.cpp \
-    DTM/cateye_srtm.cpp \
-    SHP/shpwriter.cpp \
-    SHP/dbfopen.c \
-    SHP/safileio.c \
-    SHP/shpopen.c \
-    SHP/shptree.c \
+    ./DTM/cateye_mercator.cpp \
+    ./DTM/cateye_srtm.cpp \
+    ./SHP/shpwriter.cpp \
+    ./SHP/dbfopen.c \
+    ./SHP/safileio.c \
+    ./SHP/shpopen.c \
+    ./SHP/shptree.c \
     ZoneParamDialog.cpp
 
 HEADERS  += mainwindow.h \
@@ -72,16 +72,17 @@ HEADERS  += mainwindow.h \
     child_tv.h \
     uicontroller.h \
     copyrightdialog.h \
-    DTM/cateye_basic.h \
-    DTM/cateye_mercator.h \
-    DTM/cateye_srtm.h \
-    SHP/shapefil.h \
-    SHP/shapefileHelper.h \
-    SHP/shpwriter.h \
+    ./DTM/cateye_basic.h \
+    ./DTM/cateye_mercator.h \
+    ./DTM/cateye_srtm.h \
+    ./SHP/shapefil.h \
+    ./SHP/shapefileHelper.h \
+    ./SHP/shpwriter.h \
     ZoneParamDialog.h
 
 FORMS    += mainwindow.ui \
     child_tv.ui \
-    copyrightdialog.ui
+    copyrightdialog.ui \
+    zone_param.ui
 
 RESOURCES     = tools.qrc

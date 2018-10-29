@@ -700,7 +700,6 @@ QPoint MainWindowFrame::converWgs2Pix(const QRect &clientRect, WGS84Coord wgs)
 
 void MainWindowFrame::about()
 {
-	on_zone_param();
 
 	m_pCopyRightDialog = new CopyRightDialog(this);
 	m_pCopyRightDialog->show();

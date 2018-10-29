@@ -110,7 +110,7 @@ void FlightRouteDesign::GaussProjection()
     qDebug(streamdebug.str().c_str());
 
     //Guass projection of flight region polygon or polyline
-    char * geom_before_proj_wkt="";
+    char * geom_before_proj_wkt=(char*)"";
     m_FightRegion_Gauss.get()->exportToWkt(&geom_before_proj_wkt);
     streamdebug.str("");
     streamdebug<<"flight region geometry before gauss projection:"<<geom_before_proj_wkt<<std::endl;
